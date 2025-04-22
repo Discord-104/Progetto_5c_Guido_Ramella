@@ -1,0 +1,6 @@
+.profile-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%; /* Rende l'immagine rotonda */
+    object-fit: cover; /* Assicura che l'immagine non distorca */
+}
