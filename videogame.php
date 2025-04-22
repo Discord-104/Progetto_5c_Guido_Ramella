@@ -1,123 +1,124 @@
-<?php
-
-$apiKey = "bb709d6b2114c61e3f0c9999834b43918d1a2427";
-$search = "Final Fantasy"; // cambia qui il testo di ricerca
-$encodedSearch = urlencode($search);
-$limit = 5;
-
-// URL search con filtro solo giochi
-$searchUrl = "https://www.giantbomb.com/api/search/?"
-    . "api_key=$apiKey"
-    . "&format=json"
-    . "&query=$encodedSearch"
-    . "&resources=game"
-    . "&limit=$limit"
-    . "&field_list=guid,name,deck,image,platforms,original_release_date,site_detail_url";
-
-// Context HTTP
-$options = [
-    "http" => [
-        "header" => "User-Agent: GiantBomb PHP Script\r\n"
-    ]
-];
-$context = stream_context_create($options);
-
-$response = file_get_contents($searchUrl, false, $context);
-$data = json_decode($response, true);
-
-function formatPlatforms($platforms) {
-    if (!is_array($platforms)) return "N/D";
-    return implode(", ", array_map(fn($p) => $p['name'], $platforms));
-}
-
-function formatGenres($genres) {
-    if (!is_array($genres)) return "N/D";
-    return implode(", ", array_map(fn($g) => $g['name'], $genres));
-}
-
-function formatDate($dateStr) {
-    if (!$dateStr) return "Data non disponibile";
-    return date("d/m/Y", strtotime($dateStr));
-}
-
-?>
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Risultati per "<?= htmlspecialchars($search) ?>"</title>
+    <title>Ricerca Videogames</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
             background: #f0f0f0;
+            padding: 20px;
         }
         .game {
             background: white;
-            border-radius: 10px;
+            margin-bottom: 20px;
             padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
             display: flex;
-            align-items: flex-start;
             gap: 15px;
         }
         img {
-            border-radius: 8px;
             max-width: 100px;
+            border-radius: 6px;
         }
-        h2 {
-            margin: 0 0 10px;
+        .info h2 {
+            margin: 0;
         }
-        .info {
-            font-size: 0.9em;
-            color: #555;
+        #searchContainer {
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
 
-<h1>Risultati per: "<?= htmlspecialchars($search) ?>"</h1>
+<h1>Ricerca Videogames</h1>
 
-<?php
-if (isset($data['results']) && count($data['results']) > 0) {
-    foreach ($data['results'] as $game) {
-        $guid = $game['guid'];
-        $detailUrl = "https://www.giantbomb.com/api/game/$guid/?"
-            . "api_key=$apiKey&format=json&field_list=genres";
+<div id="searchContainer">
+    <input type="text" id="query" />
+</div>
 
-        // Otteniamo i generi veri
-        $detailResponse = file_get_contents($detailUrl, false, $context);
-        $detailData = json_decode($detailResponse, true);
-        $genres = formatGenres($detailData['results']['genres'] ?? []);
+<div id="risultati"></div>
 
-        // Altri dati
-        $name = htmlspecialchars($game['name']);
-        $desc = htmlspecialchars($game['deck'] ?? "Nessuna descrizione.");
-        $img = htmlspecialchars($game['image']['small_url'] ?? "");
-        $url = htmlspecialchars($game['site_detail_url']);
-        $platforms = formatPlatforms($game['platforms'] ?? []);
-        $releaseDate = formatDate($game['original_release_date'] ?? null);
+<script>
+async function cercaGames() {
+            // Ottieni il termine di ricerca dalla barra di ricerca
+            var query = document.getElementById("query").value;
+            var container = document.getElementById("risultati");
+            
+            // Mostra un messaggio di caricamento
+            container.innerHTML = "Caricamento...";
 
-        echo "<div class='game'>";
-        if ($img) {
-            echo "<img src='$img' alt='Immagine di $name'>";
+            try {
+                // Se la query è vuota, non fare nulla
+                if (query.trim() === "") {
+                    container.innerHTML = "<p>Inserisci un termine di ricerca.</p>";
+                    return;
+                }
+
+                // Genera l'URL della ricerca (fai attenzione ai caratteri speciali)
+                var url = "ajax/cercaVideogame.php?query=" + encodeURIComponent(query);
+
+                // Esegui la chiamata fetch
+                var response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error("Errore nella fetch dei videogames: " + response.status);
+                }
+
+                // Leggi la risposta come testo
+                var txt = await response.text(); 
+
+                // Se la risposta è HTML, non possiamo fare il parsing come JSON
+                if (txt.startsWith("<html>")) {
+                    throw new Error("Il server ha restituito una pagina HTML invece di JSON.");
+                }
+
+                // Parso la risposta come JSON
+                var dati = JSON.parse(txt);
+
+                if (dati["status"] === "ERR") {
+                    container.innerHTML = "<p style='color: red;'>" + dati["msg"] + "</p>";
+                    return;
+                }
+
+                container.innerHTML = ""; // Svuota i risultati precedenti
+
+                // Aggiungi i risultati alla pagina
+                if (dati["dati"].length === 0) {
+                    container.innerHTML = "<p>Nessun risultato trovato.</p>";
+                }
+
+                for (var i = 0; i < dati["dati"].length; i++) {
+                    var game = dati["dati"][i];
+                    container.innerHTML +=
+                        "<div class='game'>" +
+                            "<img src='" + game.immagine + "' alt='" + game.titolo + "' />" +
+                            "<div class='info'>" +
+                                "<h2>" + game.titolo + "</h2>" +
+                                "<p>" + game.descrizione + "</p>" +
+                                "<a href='" + game.link + "' target='_blank'>Vedi su GiantBomb</a>" +
+                            "</div>" +
+                        "</div>";
+                }
+
+            } catch (err) {
+                console.error("Errore durante la ricerca:", err); 
+                container.innerHTML = "<p style='color: red;'>Errore durante la ricerca. Controlla la console per maggiori dettagli.</p>";
+            }
         }
-        echo "<div>";
-        echo "<h2>$name</h2>";
-        echo "<p>$desc</p>";
-        echo "<p class='info'><strong>Generi:</strong> $genres</p>";
-        echo "<p class='info'><strong>Piattaforme:</strong> $platforms</p>";
-        echo "<p class='info'><strong>Data di uscita:</strong> $releaseDate</p>";
-        echo "<p><a href='$url' target='_blank'>Scheda su GiantBomb</a></p>";
-        echo "</div>";
-        echo "</div>";
-    }
-} else {
-    echo "<p>Nessun risultato trovato per \"<strong>" . htmlspecialchars($search) . "</strong>\".</p>";
-}
-?>
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Attiviamo la ricerca automaticamente una volta che la pagina è pronta
+            cercaGames();
+
+            // Aggiungiamo un listener per la barra di ricerca
+            document.getElementById("query").addEventListener("input", function() {
+                // Ogni volta che l'utente digita, facciamo una nuova ricerca
+                cercaGames();
+            });
+        });
+</script>
 
 </body>
 </html>

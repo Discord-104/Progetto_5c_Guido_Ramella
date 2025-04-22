@@ -1,78 +1,93 @@
-<?php
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Ricerca Manga</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+        .manga {
+            background: white;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+        }
+        img {
+            max-width: 100px;
+            border-radius: 6px;
+        }
+        .info h2 {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
 
-// URL API GraphQL
-$url = 'https://graphql.anilist.co';
+<h1>Ricerca Manga</h1>
+<input type="text" id="query" placeholder="Es. Naruto" />
+<button onclick="cercaManga()">Cerca</button>
 
-// Query GraphQL per MANGA
-$query = '
-    query {
-        Page(perPage: 10) {
-            media(type: MANGA, sort: POPULARITY_DESC) {
-                id
-                title {
-                    romaji
-                    english
-                }
-                coverImage {
-                    large
-                }
-                siteUrl
-                description(asHtml: false)
-                chapters
+<div id="risultati"></div>
+
+<script>
+    async function cercaManga() {
+        var query = document.getElementById("query").value;
+        var container = document.getElementById("risultati");
+        container.innerHTML = "Caricamento...";
+
+        try {
+            // Genera l'URL e esegue la richiesta fetch
+            var url = "ajax/cercaManga.php?query=" + encodeURIComponent(query);
+            console.log("URL richiesta: ", url); // Aggiungi un log dell'URL per il debug
+
+            var response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error("Errore nella fetch dei manga: " + response.status);
             }
+
+            // Leggi la risposta come testo e logga la risposta raw
+            var txt = await response.text(); 
+            console.log("Risposta raw del server:", txt); // Log della risposta del server (HTML o JSON)
+
+            // Parso il testo in formato JSON
+            var dati = JSON.parse(txt);  
+            console.log("Dati decodificati:", dati);
+
+            if (dati["status"] === "ERR") {
+                container.innerHTML = "<p style='color: red;'>" + dati["msg"] + "</p>";
+                return;
+            }
+
+            container.innerHTML = ""; // Svuota i risultati precedenti
+
+            // Aggiungi i risultati alla pagina
+            for (var i = 0; i < dati["dati"].length; i++) {
+                var manga = dati["dati"][i];
+                container.innerHTML +=
+                    "<div class='manga'>" +
+                        "<img src='" + manga.image + "' alt='" + manga.titolo + "' />" +
+                        "<div class='info'>" +
+                            "<h2>" + manga.titolo + "</h2>" +
+                            "<p><strong>Capitoli:</strong> " + manga.capitoli + "</p>" +
+                            "<p>" + manga.descrizione + "</p>" +
+                            "<a href='" + manga.url + "' target='_blank'>Vedi su AniList</a>" +
+                        "</div>" +
+                    "</div>";
+            }
+
+        } catch (err) {
+            console.error("Errore durante la ricerca:", err); // Aggiungi il log dell'errore
+            container.innerHTML = "<p style='color: red;'>Errore durante la ricerca. Controlla la console per maggiori dettagli.</p>";
         }
     }
-';
+</script>
 
-// Prepara i dati in JSON
-$postData = json_encode(['query' => $query]);
-
-// Prepara intestazioni
-$headers = implode("\r\n", [
-    "Content-type: application/json",
-    "Accept: application/json"
-]);
-
-// Crea contesto HTTP
-$context = stream_context_create([
-    'http' => [
-        'method'  => 'POST',
-        'header'  => $headers,
-        'content' => $postData
-    ]
-]);
-
-// Esegui richiesta
-$response = file_get_contents($url, false, $context);
-
-// Decodifica
-$data = json_decode($response, true);
-
-// Output
-if (isset($data['data']['Page']['media'])) {
-    echo "<h2>Manga popolari:</h2>";
-    echo "<div style='display: flex; flex-wrap: wrap; gap: 20px;'>";
-
-    foreach ($data['data']['Page']['media'] as $manga) {
-        $title = $manga['title']['romaji'] ?? 'Senza titolo';
-        $image = $manga['coverImage']['large'] ?? '';
-        $url = $manga['siteUrl'] ?? '#';
-        $desc = strip_tags($manga['description'] ?? '');
-        $desc = strlen($desc) > 180 ? substr($desc, 0, 180) . '...' : $desc;
-        $chapters = $manga['chapters'] ?? '?';
-
-        echo "<div style='width: 200px; text-align: center;'>";
-        echo "<a href='$url' target='_blank'>";
-        echo "<img src='$image' alt='$title' style='width: 100%; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2);'>";
-        echo "</a>";
-        echo "<div style='margin-top: 8px; font-weight: bold;'>$title</div>";
-        echo "<div style='font-size: 14px; margin: 5px 0;'>Capitoli: $chapters</div>";
-        echo "<div style='font-size: 13px; color: #555;'>$desc</div>";
-        echo "</div>";
-    }
-
-    echo "</div>";
-} else {
-    echo "Errore nella risposta o nessun manga trovato.";
-}
-?>
+</body>
+</html>
