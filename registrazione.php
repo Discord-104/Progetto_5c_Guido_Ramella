@@ -48,6 +48,11 @@ if (isset($_POST['username'], $_POST['first_name'], $_POST['last_name'], $_POST[
         $profile_image = "default_profiles/" . $_POST["immagine_default"];
     }
 
+    // Controllo immagine del profilo
+    if (empty($profile_image)) {
+        $error = "Devi caricare un'immagine del profilo o scegliere una immagine predefinita.";
+    }
+
     // Validazioni
     $errori = [];
 
@@ -137,25 +142,29 @@ if (isset($_POST['username'], $_POST['first_name'], $_POST['last_name'], $_POST[
         <input type="file" name="immagine" accept="image/*"><br>
 
         <label>Oppure scegli immagine predefinita:</label>
-        <div class="dropdown">
+        <div id="preview-img" style="margin-top:10px;" class="dropdown">
             <button class="dropbtn">Seleziona immagine</button>
             <div class="dropdown-content">
-                <div class="dropdown-item" data-value="avatar.png">
-                    <img src="default_profiles/avatar.png" alt="Avatar 1" class="avatar-image">
-                    Avatar 1
-                </div>
-                <div class="dropdown-item" data-value="avatar2.png">
-                    <img src="default_profiles/avatar2.png" alt="Avatar 2" class="avatar-image">
-                    Avatar 2
-                </div>
-                <div class="dropdown-item" data-value="avatar3.png">
-                    <img src="default_profiles/avatar3.png" alt="Avatar 3" class="avatar-image">
-                    Avatar 3
-                </div>
-            </div>
-            <input type="hidden" name="immagine_default" id="immagine_default">
-        </div>
+                <?php
+                    $directory = "default_profiles/";
+                    $files = scandir($directory);
 
+                    for ($i = 0; $i < count($files); $i++) {
+                        $file = $files[$i];
+                        $path = $directory . $file;
+
+                        // Filtra solo immagini valide (no . e ..)
+                        if ($file !== "." && $file !== ".." && preg_match('/\.(jpg|jpeg|png|gif)$/i', $file)) {
+                            $nome = ucwords(str_replace('_', ' ', pathinfo($file, PATHINFO_FILENAME)));
+                            echo "<div class='dropdown-item' data-value='$file'>
+                                    <img src='$path' alt='$nome' class='avatar-image'>
+                                    $nome
+                                </div>";
+                        }
+                    }
+                ?>
+        </div>
+        <input type="hidden" name="immagine_default" id="immagine_default">
         <input type="submit" value="Registrati">
     </form>
 </body>
