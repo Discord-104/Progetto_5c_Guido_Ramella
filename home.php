@@ -29,20 +29,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="CSS/profilo.css"> 
+    <link rel="stylesheet" href="CSS/profilo.css">
+    <link rel="stylesheet" href="CSS/home.css">
     <title>Home</title>
 </head>
 <body>
-    <h1>Benvenuto, <?php echo $utente['username']; ?>!</h1>
-    
-    <p><strong>Nome:</strong> <?php echo $utente['first_name'] . " " . $utente['last_name']; ?></p>
-    <p><strong>Email:</strong> <?php echo $utente['email']; ?></p>
-    
-    <!-- Mostra l'immagine del profilo -->
-    <p><strong>Immagine del profilo:</strong></p>
-    <img src="<?php echo $utente['profile_image']; ?>" alt="Immagine profilo" width="150" height="150" class="profile-image">
 
-    <br>
-    <a href="logout.php">Esci</a>
+    <div class="top-bar">
+        <h1>Benvenuto <?php echo $utente['username']; ?></h1>
+        <img src="<?php echo $utente['profile_image']; ?>" alt="Immagine profilo" class="profile-image">
+    </div>
+
+    <div class="search-container">
+        <div class="search-bar">
+            <input type="text" id="query" placeholder="Cerca titoli..." />
+            <select id="tipoRicerca">
+                <option value="fumetti">Fumetti</option>
+                <option value="anime">Anime</option>
+                <option value="manga">Manga</option>
+                <option value="videogame">Videogame</option>
+            </select>
+        </div>
+        <div id="risultati" class="search-results">
+
+        </div>
+    </div>
+        
+    <!-- SEZIONE ATTIVITÀ -->
+    <div class="activities" id="sezione_attivita">
+        <!-- Le attività verranno caricate dinamicamente qui -->
+    </div>
+
+    <a class="logout-link" href="logout.php">Esci</a>
+
+
+    <script>
+        async function caricaAttivita() {
+            let url = "ajax/carica_attivita.php";
+            let response = await fetch(url);
+
+            if (!response.ok) {
+                alert("Errore nella chiamata AJAX");
+                return;
+            }
+
+            let txt = await response.text();
+            console.log(txt);
+            let datiRicevuti = JSON.parse(txt);
+
+            if (datiRicevuti["status"] == "ERR") {
+                alert(datiRicevuti["msg"]);
+                return;
+            }
+
+            let attività = datiRicevuti["data"];
+            let contenitore = document.getElementById("sezione_attivita");
+            contenitore.innerHTML = "";
+
+            if (attività.length === 0) {
+                let msg = datiRicevuti["msg"] || "Nessuna attività trovata.";
+                let messaggio = document.createElement("div");
+                messaggio.className = "nessuna-attivita";
+                messaggio.innerText = msg;
+                contenitore.appendChild(messaggio);
+                return;
+            }
+
+            for (let i = 0; i < attività.length; i++) {
+                let riga = document.createElement("div");
+                riga.className = "attivita-item";
+                riga.innerHTML = "<strong>[" + attività[i]["tipo"] + "]</strong> " + 
+                                attività[i]["titolo"] + " - " + 
+                                attività[i]["progresso"] + " (" + 
+                                attività[i]["data_ora"] + ")";
+                contenitore.appendChild(riga);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            caricaAttivita();
+        });
+
+        async function cerca() {
+            var query = document.getElementById("query").value;
+            var container = document.getElementById("risultati");
+            container.innerHTML = "Caricamento...";
+
+            // Ottieni il tipo di ricerca dal menu a tendina
+            var tipo = document.getElementById("tipoRicerca").value;
+
+            // Costruisci l'URL della richiesta in base al tipo
+            var url = "";
+            if (tipo === "fumetti") {
+                url = "ajax/cercaFumetti.php?query=" + query;
+            } else if (tipo === "anime") {
+                url = "ajax/cercaAnime.php?query=" + query;
+            } else if (tipo === "manga") {
+                url = "ajax/cercaManga.php?query=" + query;
+            } else if (tipo === "videogame") {
+                url = "ajax/cercaVideogame.php?query=" + query;
+            }
+
+            // Esegui la richiesta asincrona con fetch
+            var response = await fetch(url);
+            if (!response.ok) {
+                container.innerHTML = "<p style='color: red;'>Errore nella fetch della ricerca: " + response.status + "</p>";
+                return;
+            }
+
+            var txt = await response.text(); // NON usare json()
+            console.log(txt);
+            var datiRicevuti = JSON.parse(txt);
+            console.log(datiRicevuti);
+
+            if (datiRicevuti["status"] == "ERR") {
+                container.innerHTML = "<p style='color: red;'>" + datiRicevuti["msg"] + "</p>";
+                return;
+            }
+
+            container.innerHTML = ""; // Svuota i risultati precedenti
+
+            // Aggiungi i risultati alla pagina
+            if (datiRicevuti["dati"].length === 0) {
+                container.innerHTML = "<p>Nessun risultato trovato.</p>";
+                return;
+            }
+
+            for (var i = 0; i < datiRicevuti["dati"].length; i++) {
+                var elemento = datiRicevuti["dati"][i];
+                var htmlContent = "";
+
+                if (tipo === "fumetti") {
+                    htmlContent = 
+                        "<div class='issue'>" +
+                            "<img src='" + elemento.immagine + "' alt='" + elemento.titolo + "' />" +
+                            "<div class='info'>" +
+                                "<h2>" + elemento.titolo + " <small>(#" + elemento.numero + " - " + elemento.volume + ")</small></h2>" +
+                                "<p><strong>Pagine:</strong> " + elemento.pagine + "</p>" +
+                                "<p>" + elemento.descrizione + "</p>" +
+                                "<a href='" + elemento.link + "' target='_blank'>Vedi su ComicVine</a>" +
+                            "</div>" +
+                        "</div>";
+                } else if (tipo === "anime") {
+                    htmlContent = 
+                        "<div class='anime'>" +
+                            "<img src='" + elemento.image + "' alt='" + elemento.titolo + "' />" +
+                            "<div class='info'>" +
+                                "<h2>" + elemento.titolo + "</h2>" +
+                                "<p><strong>Episodi:</strong> " + elemento.episodi + "</p>" +
+                                "<p>" + elemento.descrizione + "</p>" +
+                                "<a href='" + elemento.url + "' target='_blank'>Vedi su Anilist</a>" +
+                            "</div>" +
+                        "</div>";
+                } else if (tipo === "manga") {
+                    htmlContent = 
+                        "<div class='manga'>" +
+                            "<img src='" + elemento.image + "' alt='" + elemento.titolo + "' />" +
+                            "<div class='info'>" +
+                                "<h2>" + elemento.titolo + "</h2>" +
+                                "<p><strong>Capitoli:</strong> " + elemento.capitoli + "</p>" +
+                                "<p>" + elemento.descrizione + "</p>" +
+                                "<a href='" + elemento.url + "' target='_blank'>Vedi su AniList</a>" +
+                            "</div>" +
+                        "</div>";
+                } else if (tipo === "videogame") {
+                    htmlContent = 
+                        "<div class='game'>" +
+                            "<img src='" + elemento.immagine + "' alt='" + elemento.titolo + "' />" +
+                            "<div class='info'>" +
+                                "<h2>" + elemento.titolo + "</h2>" +
+                                "<p>" + elemento.descrizione + "</p>" +
+                                "<a href='" + elemento.link + "' target='_blank'>Vedi su GiantBomb</a>" +
+                            "</div>" +
+                        "</div>";
+                }
+
+                container.innerHTML += htmlContent;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("query").addEventListener("input", function() {
+                // Avvia la ricerca ogni volta che l'utente digita
+                cerca();
+            });
+        });
+    </script>
 </body>
 </html>
+
