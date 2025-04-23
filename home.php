@@ -111,15 +111,15 @@
         });
 
         async function cerca() {
-            var query = document.getElementById("query").value;
-            var container = document.getElementById("risultati");
+            let query = document.getElementById("query").value;
+            let container = document.getElementById("risultati");
             container.innerHTML = "Caricamento...";
 
             // Ottieni il tipo di ricerca dal menu a tendina
-            var tipo = document.getElementById("tipoRicerca").value;
+            let tipo = document.getElementById("tipoRicerca").value;
 
             // Costruisci l'URL della richiesta in base al tipo
-            var url = "";
+            let url = "";
             if (tipo === "fumetti") {
                 url = "ajax/cercaFumetti.php?query=" + query;
             } else if (tipo === "anime") {
@@ -131,16 +131,25 @@
             }
 
             // Esegui la richiesta asincrona con fetch
-            var response = await fetch(url);
+            let response = await fetch(url);
+
+            // Controlla se la richiesta HTTP è andata a buon fine
             if (!response.ok) {
                 container.innerHTML = "<p style='color: red;'>Errore nella fetch della ricerca: " + response.status + "</p>";
                 return;
             }
 
-            var txt = await response.text(); // NON usare json()
-            console.log(txt);
-            var datiRicevuti = JSON.parse(txt);
-            console.log(datiRicevuti);
+            // Verifica che la risposta sia in formato JSON
+            let txt = await response.text();
+            let datiRicevuti;
+
+            // Prova a fare il parse del JSON, ma senza try/catch
+            if (txt.startsWith('<br>')) {
+                container.innerHTML = "<p style='color: red;'>Errore: formato risposta non valido</p>";
+                return;
+            }
+
+            datiRicevuti = JSON.parse(txt);
 
             if (datiRicevuti["status"] == "ERR") {
                 container.innerHTML = "<p style='color: red;'>" + datiRicevuti["msg"] + "</p>";
@@ -155,9 +164,9 @@
                 return;
             }
 
-            for (var i = 0; i < datiRicevuti["dati"].length; i++) {
-                var elemento = datiRicevuti["dati"][i];
-                var htmlContent = "";
+            for (let i = 0; i < datiRicevuti["dati"].length; i++) {
+                let elemento = datiRicevuti["dati"][i];
+                let htmlContent = "";
 
                 if (tipo === "fumetti") {
                     htmlContent = 
@@ -167,7 +176,7 @@
                                 "<h2>" + elemento.titolo + " <small>(#" + elemento.numero + " - " + elemento.volume + ")</small></h2>" +
                                 "<p><strong>Pagine:</strong> " + elemento.pagine + "</p>" +
                                 "<p>" + elemento.descrizione + "</p>" +
-                                "<a href='" + elemento.link + "' target='_blank'>Vedi su ComicVine</a>" +
+                                "<a href='" + elemento.link + "' target='_blank'>Vedi nel dettaglio</a>" +
                             "</div>" +
                         "</div>";
                 } else if (tipo === "anime") {
@@ -178,7 +187,7 @@
                                 "<h2>" + elemento.titolo + "</h2>" +
                                 "<p><strong>Episodi:</strong> " + elemento.episodi + "</p>" +
                                 "<p>" + elemento.descrizione + "</p>" +
-                                "<a href='" + elemento.url + "' target='_blank'>Vedi su Anilist</a>" +
+                                "<a href='" + elemento.url + "' target='_blank'>Vedi nel dettaglio</a>" +
                             "</div>" +
                         "</div>";
                 } else if (tipo === "manga") {
@@ -189,7 +198,7 @@
                                 "<h2>" + elemento.titolo + "</h2>" +
                                 "<p><strong>Capitoli:</strong> " + elemento.capitoli + "</p>" +
                                 "<p>" + elemento.descrizione + "</p>" +
-                                "<a href='" + elemento.url + "' target='_blank'>Vedi su AniList</a>" +
+                                "<a href='" + elemento.url + "' target='_blank'>Vedi nel dettaglio</a>" +
                             "</div>" +
                         "</div>";
                 } else if (tipo === "videogame") {
@@ -199,7 +208,7 @@
                             "<div class='info'>" +
                                 "<h2>" + elemento.titolo + "</h2>" +
                                 "<p>" + elemento.descrizione + "</p>" +
-                                "<a href='" + elemento.link + "' target='_blank'>Vedi su GiantBomb</a>" +
+                                "<a href='" + elemento.link + "' target='_blank'>Vedi nel dettaglio</a>" +
                             "</div>" +
                         "</div>";
                 }
