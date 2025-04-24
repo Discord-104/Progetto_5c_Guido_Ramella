@@ -53,11 +53,11 @@
             flex: 1 1 45%;
         }
 
-        .personaggio, .relazione {
+        .personaggio, .relazione, .staff-membro, .raccomandazione {
             margin-bottom: 15px;
         }
 
-        .personaggio img {
+        .personaggio img, .staff-membro img, .raccomandazione img {
             max-width: 80px;
             display: block;
             margin-bottom: 5px;
@@ -67,6 +67,12 @@
             width: 100%;
             height: 400px;
             margin-top: 20px;
+        }
+
+        .tags {
+            margin: 10px 0;
+            font-style: italic;
+            color: #555;
         }
     </style>
     <script>
@@ -96,15 +102,20 @@
             html += '<p><strong>Episodi:</strong> ' + anime.episodi + '</p>';
             html += '<p><strong>Punteggio:</strong> ' + anime.punteggio + '</p>';
             html += '<p><strong>Generi:</strong> ' + anime.generi + '</p>';
+            html += '<p><strong>Tag:</strong> <span class="tags">' + anime.tags.join(", ") + '</span></p>';
             html += '<p><strong>Stagione:</strong> ' + anime.stagione + '</p>';
             html += '<p><strong>Data inizio:</strong> ' + anime.inizio + '</p>';
             html += '<p><strong>Data fine:</strong> ' + anime.fine + '</p>';
             html += '<p><strong>Studio:</strong> ' + anime.studio + '</p>';
 
+            if (anime.trailer) {
+                html += '<h3>Trailer</h3>';
+                html += '<iframe src="' + anime.trailer + '" frameborder="0" allowfullscreen></iframe>';
+            }
+
             html += '<h3>Personaggi principali</h3>';
             html += '<div class="griglia">';
-            for (let i = 0; i < anime.personaggi.length; i++) {
-                let p = anime.personaggi[i];
+            for (let p of anime.personaggi) {
                 html += '<div class="personaggio">';
                 html += '<img src="' + p.immagine + '" alt="' + p.nome + '">';
                 html += '<p>' + p.nome + '</p>';
@@ -113,28 +124,40 @@
             html += '</div>';
 
             html += '<h3>Staff</h3>';
-            html += '<ul>';
-            for (let i = 0; i < anime.staff.length; i++) {
-                let s = anime.staff[i];
-                html += '<li>' + s.nome + ' (' + s.ruolo + ')</li>';
+            html += '<div class="griglia">';
+            for (let s of anime.staff) {
+                html += '<div class="staff-membro">';
+                html += '<img src="' + s.immagine + '" alt="' + s.nome + '">';
+                html += '<p><strong>' + s.nome + '</strong><br><span>' + s.ruolo + '</span></p>';
+                html += '</div>';
             }
-            html += '</ul>';
+            html += '</div>';
 
             html += '<h3>Relazioni</h3>';
-            html += '<ul>';
-            for (let i = 0; i < anime.relazioni.length; i++) {
-                let r = anime.relazioni[i];
-                html += '<li>' + r.relazione + ' - ' + r.tipo + ': <a href="dettagli_anime.php?id=' + r.id + '">' + r.titolo + '</a></li>';
+            html += '<div class="griglia">';
+            for (let r of anime.relazioni) {
+                html += '<div class="relazione">';
+                html += '<a href="dettagli_anime.php?id=' + r.id + '">';
+                if (r.immagine) {
+                    html += '<img src="' + r.immagine + '" alt="' + r.titolo + '" style="max-width: 100px; margin-right: 10px;">';
+                }
+                html += '<p>' + r.relazione + ' - ' + r.tipo + ': ' + r.titolo + '</p>';
+                html += '</a>';
+                html += '</div>';
             }
-            html += '</ul>';
+            html += '</div>';
 
             html += '<h3>Raccomandazioni</h3>';
-            html += '<ul>';
-            for (let i = 0; i < anime.raccomandazioni.length; i++) {
-                let rec = anime.raccomandazioni[i];
-                html += '<li><a href="dettagli_anime.php?id=' + rec.id + '">' + rec.titolo + '</a></li>';
+            html += '<div class="griglia">';
+            for (let rec of anime.raccomandazioni) {
+                html += '<div class="raccomandazione">';
+                html += '<a href="dettagli_anime.php?id=' + rec.id + '">';
+                html += '<img src="' + rec.immagine + '" alt="' + rec.titolo + '">';
+                html += '<p>' + rec.titolo + '</p>';
+                html += '</a>';
+                html += '</div>';
             }
-            html += '</ul>';
+            html += '</div>';
 
             document.getElementById("contenuto").innerHTML = html;
         }
