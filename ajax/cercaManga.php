@@ -82,9 +82,9 @@ if (isset($data['data']['Page']['media'])) {
             $image = $manga['coverImage']['large'];
         }
 
-        $url = "#";
-        if (isset($manga['siteUrl']) && $manga['siteUrl'] !== "") {
-            $url = $manga['siteUrl'];
+        $url = "dettagli_manga.php";
+        if (isset($manga["id"])) {
+            $url = "dettagli_manga.php?id=" . $manga["id"];
         }
 
         $descrizione = "";
