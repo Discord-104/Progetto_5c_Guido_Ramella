@@ -54,9 +54,10 @@ foreach ($data['results'] as $game) {
         $descrizione = strip_tags($game['deck']);
     }
 
-    $link = "";
-    if (isset($game['site_detail_url'])) {
-        $link = $game['site_detail_url'];
+    $link = "dettagli_videogame.php";
+    
+    if (isset($game['guid'])) {
+        $link .= "?guid=" . $game['guid'];
     }
 
     $immagine = "";
