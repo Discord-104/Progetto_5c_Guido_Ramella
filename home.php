@@ -174,7 +174,6 @@
                             "<img src='" + elemento.immagine + "' alt='" + elemento.titolo + "' />" +
                             "<div class='info'>" +
                                 "<h2>" + elemento.titolo + " <small>(#" + elemento.numero + " - " + elemento.volume + ")</small></h2>" +
-                                "<p><strong>Pagine:</strong> " + elemento.pagine + "</p>" +
                                 "<p>" + elemento.descrizione + "</p>" +
                                 "<a href='" + elemento.link + "' target='_blank'>Vedi nel dettaglio</a>" +
                             "</div>" +

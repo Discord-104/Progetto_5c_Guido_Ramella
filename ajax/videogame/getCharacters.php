@@ -25,10 +25,16 @@
         "&field_list=characters";
 
     $data = fetchFromApi($url);
+    $limit = 20;
+    $count = 0;
     $characters = [];
 
 
     foreach ($data["results"]["characters"] as $char) {
+        
+        if ($count >= $limit) {
+            break;
+        }
 
         if (isset($char["api_detail_url"])) {
             // Sleep prima della richiesta per rispettare il rate limit
@@ -51,6 +57,7 @@
                 }
 
                 $characters[] = ["nome" => $nome, "immagine" => $img];
+                $count++;
             }
         }
     }

@@ -59,11 +59,6 @@ foreach ($data['results'] as $issue) {
         $numero = $issue['issue_number'];
     }
 
-    $pagine = "Non disponibile";
-    if (isset($issue['page_count'])) {
-        $pagine = $issue['page_count'];
-    }
-
     $descrizione = "";
     if (isset($issue['deck'])) {
         $descrizione = strip_tags($issue['deck']);
@@ -83,7 +78,6 @@ foreach ($data['results'] as $issue) {
         "titolo" => $titolo,
         "volume" => $volume,
         "numero" => $numero,
-        "pagine" => $pagine,
         "descrizione" => $descrizione,
         "link" => $link,
         "immagine" => $immagine
