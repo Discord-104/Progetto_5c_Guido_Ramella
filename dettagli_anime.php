@@ -1,16 +1,17 @@
 <?php
-    session_start();
-    if (!isset($_SESSION["utente_id"])) {
-        header("Location: login.php");
-        exit;
-    }
+session_start();
+if (!isset($_SESSION["utente_id"])) {
+    header("Location: login.php");
+    exit;
+}
 
-    if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
-        echo "<h2>Errore: parametro ID non valido.</h2>";
-        exit;
-    }
+if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
+    echo "<h2>Errore: parametro ID non valido.</h2>";
+    exit;
+}
 
-    $id = (int) $_GET["id"];
+$id = (int) $_GET["id"];
+$utente_id = (int) $_SESSION["utente_id"];
 ?>
 
 <!DOCTYPE html>
@@ -18,63 +19,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Dettagli Anime</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f8f8f8;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            max-width: 900px;
-            margin: auto;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px #ccc;
-        }
-
-        img {
-            max-width: 100%;
-            border-radius: 10px;
-        }
-
-        h2, h3 {
-            margin-top: 30px;
-        }
-
-        .griglia {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .griglia div {
-            flex: 1 1 45%;
-        }
-
-        .personaggio, .relazione, .staff-membro, .raccomandazione {
-            margin-bottom: 15px;
-        }
-
-        .personaggio img, .staff-membro img, .raccomandazione img {
-            max-width: 80px;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        iframe {
-            width: 100%;
-            height: 400px;
-            margin-top: 20px;
-        }
-
-        .tags {
-            margin: 10px 0;
-            font-style: italic;
-            color: #555;
-        }
-    </style>
+    <link rel="stylesheet" href="CSS/dettagli_anime.css">
     <script>
         async function caricaDettagliAnime(id) {
             let url = "ajax/getAnimebyID.php?id=" + id;
@@ -85,7 +30,6 @@
             }
 
             let txt = await response.text();
-            console.log(txt);
             let datiRicevuti = JSON.parse(txt);
 
             if (datiRicevuti["status"] == "ERR") {
@@ -162,8 +106,58 @@
             document.getElementById("contenuto").innerHTML = html;
         }
 
-        document.addEventListener("DOMContentLoaded", async function () {
-            await caricaDettagliAnime(<?= $id ?>);
+        function toggleEditor() {
+            let editor = document.getElementById('editor');
+            if (editor.style.display === 'none' || editor.style.display === '') {
+                editor.style.display = 'block';
+            } else {
+                editor.style.display = 'none';
+            }
+        }
+
+        async function salvaAttivita() {
+            let status = document.getElementById('status').value;
+            let punteggio = document.getElementById('punteggio').value;
+            let episodiVisti = document.getElementById('episodi_visti').value;
+            let startDate = document.getElementById('start_date').value;
+            let endDate = document.getElementById('end_date').value;
+            let note = document.getElementById('note').value;
+            let rewatch = document.getElementById('rewatch').value;
+            let preferito = 0;
+            if (document.getElementById('preferito').checked) {
+                preferito = 1;
+            }
+
+            let titolo = document.querySelector('#contenuto h2').innerText;
+
+            let url = "ajax/attivita_anime.php?";
+            url += "utente_id=" + <?php echo $utente_id; ?>;
+            url += "&anime_id=" + <?php echo $id; ?>;
+            url += "&titolo=" + titolo;
+            url += "&status=" + status;
+            url += "&punteggio=" + punteggio;
+            url += "&episodi_visti=" + episodiVisti;
+            url += "&start_date=" + startDate;
+            url += "&end_date=" + endDate;
+            url += "&note=" + note;
+            url += "&rewatch=" + rewatch;
+            url += "&preferito=" + preferito;
+
+            let response = await fetch(url);
+            let data = await response.json();
+
+            if (data.status == "OK") {
+                alert("Attività salvata con successo!");
+                toggleEditor();
+            } else {
+                alert("Errore nel salvataggio dell'attività: " + data.message);
+            }
+        }
+
+
+
+        document.addEventListener("DOMContentLoaded", function() {
+            caricaDettagliAnime(<?php echo $id; ?>);
         });
     </script>
 </head>
@@ -171,6 +165,42 @@
     <div class="container">
         <div id="contenuto">
             <p>Caricamento in corso...</p>
+        </div>
+
+        <button onclick="toggleEditor()">Open list editor</button>
+
+        <div id="editor" class="editor" style="display: none;">
+            <h3>Salva Attività Anime</h3>
+
+            <label for="status">Status:</label>
+            <select id="status">
+                <option value="Watching">Watching</option>
+                <option value="Complete">Complete</option>
+                <option value="Planning" selected>Planning</option>
+            </select>
+
+            <label for="punteggio">Punteggio:</label>
+            <input type="number" id="punteggio" step="0.1" min="0" max="10">
+
+            <label for="episodi_visti">Episodi Visti:</label>
+            <input type="number" id="episodi_visti" min="0">
+
+            <label for="start_date">Data inizio:</label>
+            <input type="date" id="start_date">
+
+            <label for="end_date">Data fine:</label>
+            <input type="date" id="end_date">
+
+            <label for="note">Note:</label>
+            <textarea id="note"></textarea>
+
+            <label for="rewatch">Rewatch (quante volte):</label>
+            <input type="number" id="rewatch" min="0">
+
+            <label for="preferito">Preferito:</label>
+            <input type="checkbox" id="preferito">
+
+            <button onclick="salvaAttivita()">Salva Attività</button>
         </div>
     </div>
 </body>

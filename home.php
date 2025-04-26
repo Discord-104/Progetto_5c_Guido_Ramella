@@ -64,18 +64,17 @@
 
 
     <script>
-        async function caricaAttivita() {
+            async function caricaAttivita() {
             let url = "ajax/carica_attivita.php";
             let response = await fetch(url);
-
             if (!response.ok) {
-                alert("Errore nella chiamata AJAX");
-                return;
+                throw new Error("Non sono riuscito a fare la fetch!");
             }
 
             let txt = await response.text();
             console.log(txt);
             let datiRicevuti = JSON.parse(txt);
+            console.log(datiRicevuti);
 
             if (datiRicevuti["status"] == "ERR") {
                 alert(datiRicevuti["msg"]);
@@ -86,11 +85,10 @@
             let contenitore = document.getElementById("sezione_attivita");
             contenitore.innerHTML = "";
 
-            if (attività.length === 0) {
-                let msg = datiRicevuti["msg"] || "Nessuna attività trovata.";
+            if (attività.length == 0) {
                 let messaggio = document.createElement("div");
                 messaggio.className = "nessuna-attivita";
-                messaggio.innerText = msg;
+                messaggio.innerText = "Nessuna attività trovata.";
                 contenitore.appendChild(messaggio);
                 return;
             }
@@ -98,10 +96,16 @@
             for (let i = 0; i < attività.length; i++) {
                 let riga = document.createElement("div");
                 riga.className = "attivita-item";
-                riga.innerHTML = "<strong>[" + attività[i]["tipo"] + "]</strong> " + 
-                                attività[i]["titolo"] + " - " + 
-                                attività[i]["progresso"] + " (" + 
-                                attività[i]["data_ora"] + ")";
+
+                riga.innerHTML = "<div class='attivita-card'>" +
+                                    "<img src='" + attività[i]["immagine"] + "' alt='Copertina' class='copertina-anime'>" +
+                                    "<div class='testo-attivita'>" +
+                                        "<strong>" + attività[i]["username"] + "</strong> sta guardando <strong>" +
+                                        attività[i]["titolo"] + "</strong><br>" +
+                                        "Episodi visti: " + attività[i]["episodi_visti"] + " - Stato: " + attività[i]["status"] +
+                                    "</div>" +
+                                "</div>";
+
                 contenitore.appendChild(riga);
             }
         }

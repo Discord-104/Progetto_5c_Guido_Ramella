@@ -1,0 +1,87 @@
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f8f8f8;
+    padding: 20px;
+}
+
+        .container {
+            background: white;
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+
+        h2, h3 {
+            margin-top: 30px;
+        }
+
+        .griglia {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .griglia div {
+            flex: 1 1 45%;
+        }
+
+        .personaggio, .relazione, .staff-membro, .raccomandazione {
+            margin-bottom: 15px;
+        }
+
+        .personaggio img, .staff-membro img, .raccomandazione img {
+            max-width: 80px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        iframe {
+            width: 100%;
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        .tags {
+            margin: 10px 0;
+            font-style: italic;
+            color: #555;
+        }
+
+        /* Styling per il pannello editor */
+        .editor {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f1f1f1;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+            display: none;
+        }
+
+        .editor input, .editor select, .editor textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .editor button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .editor button:hover {
+            background-color: #218838;
+        }
