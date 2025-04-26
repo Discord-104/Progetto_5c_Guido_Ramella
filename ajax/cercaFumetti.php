@@ -64,9 +64,9 @@ foreach ($data['results'] as $issue) {
         $descrizione = strip_tags($issue['deck']);
     }
 
-    $link = "";
-    if (isset($issue['site_detail_url'])) {
-        $link = $issue['site_detail_url'];
+    $link = "dettagli_fumetto.php";
+    if (isset($issue['id'])) {
+        $link = "dettagli_fumetto.php?id=" . $issue['id'];
     }
 
     $immagine = "";
@@ -74,7 +74,8 @@ foreach ($data['results'] as $issue) {
         $immagine = $issue['image']['small_url'];
     }
 
-    $results[] = [
+    $results[] = [       
+        "id" => $issue['id'],     
         "titolo" => $titolo,
         "volume" => $volume,
         "numero" => $numero,
