@@ -2,8 +2,8 @@
 
     /*
     {
-    "status": "OK"|"ERR",
-    "msg":"", | "data":[]
+        "status": "OK"|"ERR",
+        "msg":"", | "data":[]
     }
     */
 
@@ -19,8 +19,6 @@
         die();
     }
 
-    $utente_id = (int) $_SESSION["utente_id"];
-
     // Controllo se c'è il DB
     if (!$conn) {
         $ret = [];
@@ -30,11 +28,10 @@
         die();
     }
 
-    // Prendo le attività anime dell'utente
+    // Prendo le attività anime di tutti gli utenti
     $sql = "SELECT u.username, aa.titolo, aa.riferimento_api, aa.episodi_visti, aa.status
             FROM attivita_anime aa
             INNER JOIN utenti u ON aa.utente_id = u.id
-            WHERE aa.utente_id = $utente_id
             ORDER BY aa.data_ora DESC";
 
     $result = $conn->query($sql);

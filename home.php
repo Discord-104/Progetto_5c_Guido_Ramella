@@ -1,7 +1,8 @@
 <?php
-    session_start();
     require_once("classi/db.php");
     require_once("classi/Utente.php");
+    session_start();
+    
 
     // Verifica se l'utente è loggato
     if (!isset($_SESSION["utente_id"])) {
@@ -65,50 +66,67 @@
 
     <script>
             async function caricaAttivita() {
-            let url = "ajax/carica_attivita.php";
-            let response = await fetch(url);
-            if (!response.ok) {
-                throw new Error("Non sono riuscito a fare la fetch!");
-            }
-
-            let txt = await response.text();
-            console.log(txt);
-            let datiRicevuti = JSON.parse(txt);
-            console.log(datiRicevuti);
-
-            if (datiRicevuti["status"] == "ERR") {
-                alert(datiRicevuti["msg"]);
-                return;
-            }
-
-            let attività = datiRicevuti["data"];
             let contenitore = document.getElementById("sezione_attivita");
             contenitore.innerHTML = "";
 
-            if (attività.length == 0) {
+            // Funzione helper per caricare e mostrare attività da una url
+            async function caricaDaUrl(url, tipo_descrizione) {
+                let response = await fetch(url);
+                if (!response.ok) {
+                    console.error("Errore nella fetch di " + tipo_descrizione);
+                    return;
+                }
+
+                let txt = await response.text();
+                console.log(txt);
+                let datiRicevuti = JSON.parse(txt);
+
+                if (datiRicevuti["status"] == "ERR") {
+                    console.error(datiRicevuti["msg"]);
+                    return;
+                }
+
+                let attività = datiRicevuti["data"];
+
+                for (let i = 0; i < attività.length; i++) {
+                    let riga = document.createElement("div");
+                    riga.className = "attivita-item";
+
+                    let descrizione = "";
+
+                    if (attività[i]["tipo"] === "manga") {
+                        descrizione = "<strong>" + attività[i]["username"] + "</strong> sta leggendo <strong>" +
+                                    attività[i]["titolo"] + "</strong><br>" +
+                                    "Capitoli letti: " + attività[i]["capitoli_letti"] + " - Stato: " + attività[i]["status"];
+                    } else if (attività[i]["tipo"] === "anime") {
+                        descrizione = "<strong>" + attività[i]["username"] + "</strong> sta guardando <strong>" +
+                                    attività[i]["titolo"] + "</strong><br>" +
+                                    "Episodi visti: " + attività[i]["episodi_visti"] + " - Stato: " + attività[i]["status"];
+                    }
+
+                    riga.innerHTML = "<div class='attivita-card'>" +
+                                        "<img src='" + attività[i]["immagine"] + "' alt='Copertina' class='copertina-anime'>" +
+                                        "<div class='testo-attivita'>" + descrizione + "</div>" +
+                                    "</div>";
+
+                    contenitore.appendChild(riga);
+                }
+            }
+
+            // Carico prima le attività anime
+            await caricaDaUrl("ajax/carica_attivita.php", "Anime");
+            // Poi carico le attività manga
+            await caricaDaUrl("ajax/carica_attivita_manga.php", "Manga");
+
+            // Se alla fine non c'è nessuna attività caricata
+            if (contenitore.children.length == 0) {
                 let messaggio = document.createElement("div");
                 messaggio.className = "nessuna-attivita";
                 messaggio.innerText = "Nessuna attività trovata.";
                 contenitore.appendChild(messaggio);
-                return;
-            }
-
-            for (let i = 0; i < attività.length; i++) {
-                let riga = document.createElement("div");
-                riga.className = "attivita-item";
-
-                riga.innerHTML = "<div class='attivita-card'>" +
-                                    "<img src='" + attività[i]["immagine"] + "' alt='Copertina' class='copertina-anime'>" +
-                                    "<div class='testo-attivita'>" +
-                                        "<strong>" + attività[i]["username"] + "</strong> sta guardando <strong>" +
-                                        attività[i]["titolo"] + "</strong><br>" +
-                                        "Episodi visti: " + attività[i]["episodi_visti"] + " - Stato: " + attività[i]["status"] +
-                                    "</div>" +
-                                "</div>";
-
-                contenitore.appendChild(riga);
             }
         }
+
 
         document.addEventListener("DOMContentLoaded", function() {
             caricaAttivita();
