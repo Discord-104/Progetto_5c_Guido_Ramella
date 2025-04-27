@@ -1,4 +1,5 @@
 <?php
+     //TODO: controllo ep massimi quando si mette complete e passare il titolo con l'endpoint di anilist
     require_once("../classi/db.php");
     session_start();
 
