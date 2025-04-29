@@ -65,67 +65,93 @@
 
 
     <script>
-            async function caricaAttivita() {
-            let contenitore = document.getElementById("sezione_attivita");
-            contenitore.innerHTML = "";
+        async function caricaAttivita() {
+        let contenitore = document.getElementById("sezione_attivita");
+        contenitore.innerHTML = "";
 
-            // Funzione helper per caricare e mostrare attività da una url
-            async function caricaDaUrl(url, tipo_descrizione) {
-                let response = await fetch(url);
-                if (!response.ok) {
-                    console.error("Errore nella fetch di " + tipo_descrizione);
-                    return;
-                }
+        let response = await fetch("ajax/carica_attivita_globale.php");
 
-                let txt = await response.text();
-                console.log(txt);
-                let datiRicevuti = JSON.parse(txt);
-
-                if (datiRicevuti["status"] == "ERR") {
-                    console.error(datiRicevuti["msg"]);
-                    return;
-                }
-
-                let attività = datiRicevuti["data"];
-
-                for (let i = 0; i < attività.length; i++) {
-                    let riga = document.createElement("div");
-                    riga.className = "attivita-item";
-
-                    let descrizione = "";
-
-                    if (attività[i]["tipo"] === "manga") {
-                        descrizione = "<strong>" + attività[i]["username"] + "</strong> sta leggendo <strong>" +
-                                    attività[i]["titolo"] + "</strong><br>" +
-                                    "Capitoli letti: " + attività[i]["capitoli_letti"] + " - Stato: " + attività[i]["status"];
-                    } else if (attività[i]["tipo"] === "anime") {
-                        descrizione = "<strong>" + attività[i]["username"] + "</strong> sta guardando <strong>" +
-                                    attività[i]["titolo"] + "</strong><br>" +
-                                    "Episodi visti: " + attività[i]["episodi_visti"] + " - Stato: " + attività[i]["status"];
-                    }
-
-                    riga.innerHTML = "<div class='attivita-card'>" +
-                                        "<img src='" + attività[i]["immagine"] + "' alt='Copertina' class='copertina-anime'>" +
-                                        "<div class='testo-attivita'>" + descrizione + "</div>" +
-                                    "</div>";
-
-                    contenitore.appendChild(riga);
-                }
-            }
-
-            // Carico prima le attività anime
-            await caricaDaUrl("ajax/carica_attivita.php", "Anime");
-            // Poi carico le attività manga
-            await caricaDaUrl("ajax/carica_attivita_manga.php", "Manga");
-
-            // Se alla fine non c'è nessuna attività caricata
-            if (contenitore.children.length == 0) {
-                let messaggio = document.createElement("div");
-                messaggio.className = "nessuna-attivita";
-                messaggio.innerText = "Nessuna attività trovata.";
-                contenitore.appendChild(messaggio);
-            }
+        if (!response.ok) {
+            console.error("Errore nella fetch delle attività globali");
+            return;
         }
+
+        let txt = await response.text();
+        let datiRicevuti = JSON.parse(txt);
+
+        if (datiRicevuti["status"] === "ERR") {
+            console.error(datiRicevuti["msg"]);
+            return;
+        }
+
+        let attività = datiRicevuti["data"];
+
+        for (let i = 0; i < attività.length; i++) {
+            let riga = document.createElement("div");
+            riga.className = "attivita-item";
+
+            let descrizione = "";
+            let stato = "";
+            let username = attività[i]["username"];
+            let titolo = attività[i]["titolo"];
+
+            // === MANGA ===
+            if ("capitoli_letti" in attività[i]) {
+                let capitoli = attività[i]["capitoli_letti"];
+
+                if (attività[i]["status"] === "Planning") {
+                    stato = "Sta pianificando di leggere";
+                } else if (attività[i]["status"] === "Reading") {
+                    stato = "Sta leggendo";
+                } else if (attività[i]["status"] === "Complete") {
+                    stato = "Ha finito di leggere";
+                } else if (attività[i]["status"] === "Paused") {
+                    stato = "Messo in pausa";
+                } else if (attività[i]["status"] === "Dropped") {
+                    stato = "Ha smesso di leggere";
+                }
+
+                descrizione = "<strong>" + username + "</strong> " + stato + " <strong>" +
+                            titolo + "</strong><br>Capitoli letti: " + capitoli;
+
+            }
+            // === ANIME ===
+            else if ("episodi_visti" in attività[i]) {
+                let episodi = attività[i]["episodi_visti"];
+
+                if (attività[i]["status"] === "Planning") {
+                    stato = "Sta pianificando di guardare";
+                } else if (attività[i]["status"] === "Watching") {
+                    stato = "Sta guardando";
+                } else if (attività[i]["status"] === "Complete") {
+                    stato = "Ha finito di guardare";
+                } else if (attività[i]["status"] === "Paused") {
+                    stato = "Messo in pausa";
+                } else if (attività[i]["status"] === "Dropped") {
+                    stato = "Ha smesso di guardare";
+                }
+
+                descrizione = "<strong>" + username + "</strong> " + stato + " <strong>" +
+                            titolo + "</strong><br>Episodi visti: " + episodi;
+            }
+
+            riga.innerHTML = "<div class='attivita-card'>" +
+                                "<img src='" + attività[i]["immagine"] + "' alt='Copertina' class='copertina-anime'>" +
+                                "<div class='testo-attivita'>" + descrizione + "</div>" +
+                            "</div>";
+
+            contenitore.appendChild(riga);
+        }
+
+        if (contenitore.children.length === 0) {
+            let messaggio = document.createElement("div");
+            messaggio.className = "nessuna-attivita";
+            messaggio.innerText = "Nessuna attività trovata.";
+            contenitore.appendChild(messaggio);
+        }
+    }
+
+
 
 
         document.addEventListener("DOMContentLoaded", function() {
