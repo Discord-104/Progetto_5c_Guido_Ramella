@@ -5,14 +5,8 @@
 
     $ret = [];
 
-    // Funzione di validazione data
-    function valida_data($data) {
-        $d = DateTime::createFromFormat('Y-m-d', $data);
-        return $d && $d->format('Y-m-d') === $data;
-    }
-
-    // Funzione per ottenere ep_max da Anilist
-    function get_ep_max_from_anilist($anime_id) {
+    // Funzione per ottenere anno di uscita e formato da Anilist
+    function get_anno_formato_from_anilist($anime_id) {
         $ret = [];
 
         if (!isset($anime_id) || !preg_match('/^\d+$/', $anime_id)) {
@@ -25,7 +19,10 @@
         $query = '
             query ($id: Int) {
                 Media(id: $id, type: ANIME) {
-                    episodes
+                    startDate {
+                        year
+                    }
+                    format
                 }
             }
         ';
@@ -57,17 +54,26 @@
 
         $data = json_decode($result, true);
 
-        if (isset($data["data"]["Media"]["episodes"])) {
+        if (isset($data["data"]["Media"]["startDate"]["year"]) && isset($data["data"]["Media"]["format"])) {
             $ret["status"] = "OK";
             $ret["msg"] = "";
-            $ret["dato"] = $data["data"]["Media"]["episodes"];
+            $ret["dato"] = [
+                "anno_uscita" => $data["data"]["Media"]["startDate"]["year"],
+                "formato" => $data["data"]["Media"]["format"]
+            ];
         } else {
             $ret["status"] = "ERR";
-            $ret["msg"] = "Informazione episodi non trovata su Anilist.";
+            $ret["msg"] = "Informazioni su anno e formato non trovate su Anilist.";
             $ret["dato"] = null;
         }
 
         return $ret;
+    }
+
+    function valida_data($data) {
+        $date_format = 'Y-m-d';
+        $d = DateTime::createFromFormat($date_format, $data);
+        return $d && $d->format($date_format) === $data;
     }
 
     // --- Inizio codice principale ---
@@ -120,19 +126,13 @@
             }
         }
 
-        // Recuperiamo ep_max da Anilist
-        $response = get_ep_max_from_anilist($anime_id);
-        $ep_max = null;
+        // Recuperiamo anno di uscita e formato da Anilist
+        $response = get_anno_formato_from_anilist($anime_id);
+        $anno_uscita = null;
+        $formato = null;
         if ($response["status"] === "OK") {
-            $ep_max = $response["dato"];
-        }
-
-        // Validazione episodi
-        if ($episodi_visti < 0) {
-            $episodi_visti = 0;
-        }
-        if ($ep_max !== null && $episodi_visti > $ep_max) {
-            $episodi_visti = $ep_max;
+            $anno_uscita = $response["dato"]["anno_uscita"];
+            $formato = $response["dato"]["formato"];
         }
 
         // Date
@@ -205,7 +205,7 @@
         }
 
         // Controllo se esiste già attività
-        $stmt = $conn->prepare("SELECT id, status, punteggio, episodi_visti, data_inizio, data_fine, note, rewatch, preferito, titolo 
+        $stmt = $conn->prepare("SELECT id, status, punteggio, episodi_visti, data_inizio, data_fine, note, rewatch, preferito, titolo, anno_uscita, formato 
         FROM attivita_anime 
         WHERE utente_id = ? AND riferimento_api = ?");
         $stmt->bind_param("ii", $utente_id, $anime_id);
@@ -214,30 +214,28 @@
 
         if ($row = $result->fetch_assoc()) {
             $attivita_id = $row["id"];
-
-            if ($status !== $row["status"] || $punteggio != $row["punteggio"] || $episodi_visti != $row["episodi_visti"] || $start_date !== $row["data_inizio"] || $end_date !== $row["data_fine"] || $note !== $row["note"] || $rewatch != $row["rewatch"] || $preferito != $row["preferito"]) {
+        
+            if ($status !== $row["status"] || $punteggio != $row["punteggio"] || $episodi_visti != $row["episodi_visti"] || $start_date !== $row["data_inizio"] || $end_date !== $row["data_fine"] || $note !== $row["note"] || $rewatch != $row["rewatch"] || $preferito != $row["preferito"] || $anno_uscita != $row["anno_uscita"] || $formato != $row["formato"]) {
                 $stmt_update = $conn->prepare("UPDATE attivita_anime 
-                SET status = ?, punteggio = ?, episodi_visti = ?, data_inizio = ?, data_fine = ?, note = ?, rewatch = ?, preferito = ?, titolo = ?, data_ora = NOW()
-                WHERE id = ?");
-                $stmt_update->bind_param("sdisssissi", $status, $punteggio, $episodi_visti, $start_date, $end_date, $note, $rewatch, $preferito, $titolo, $attivita_id);
+                    SET status = ?, punteggio = ?, episodi_visti = ?, data_inizio = ?, data_fine = ?, note = ?, rewatch = ?, preferito = ?, titolo = ?, anno_uscita = ?, formato = ?, data_ora = NOW() 
+                    WHERE id = ?");
+                $stmt_update->bind_param("sdisssisssii", $status, $punteggio, $episodi_visti, $start_date, $end_date, $note, $rewatch, $preferito, $titolo, $anno_uscita, $formato, $attivita_id);
                 $stmt_update->execute();
-            }
 
+                $ret["status"] = "OK";
+                $ret["message"] = "Attività aggiornata correttamente!";
+            }
         } else {
-            $stmt_insert = $conn->prepare("INSERT INTO attivita_anime 
-            (utente_id, titolo, riferimento_api, status, punteggio, episodi_visti, data_inizio, data_fine, note, rewatch, preferito)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt_insert->bind_param("isisdisssii", $utente_id, $titolo, $anime_id, $status, $punteggio, $episodi_visti, $start_date, $end_date, $note, $rewatch, $preferito);
+            // Inserisci nuova attività
+            $stmt_insert = $conn->prepare("INSERT INTO attivita_anime (utente_id, riferimento_api, status, punteggio, episodi_visti, data_inizio, data_fine, note, rewatch, preferito, titolo, anno_uscita, formato) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt_insert->bind_param("iisdissssisss", $utente_id, $anime_id, $status, $punteggio, $episodi_visti, $start_date, $end_date, $note, $rewatch, $preferito, $titolo, $anno_uscita, $formato);
             $stmt_insert->execute();
+            
+            $ret["status"] = "OK";
+            $ret["message"] = "Attività inserita correttamente!";
         }
 
-        $ret["status"] = "OK";
-
-    } else {
-        $ret["status"] = "ERROR";
-        $ret["message"] = "Parametri GET mancanti.";
+        echo json_encode($ret);
     }
-
-    echo json_encode($ret);
-    die();
 ?>

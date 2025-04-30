@@ -5,14 +5,12 @@
 
     $ret = [];
 
-    // Funzione di validazione data
     function valida_data($data) {
         $d = DateTime::createFromFormat('Y-m-d', $data);
         return $d && $d->format('Y-m-d') === $data;
     }
 
-    // Funzione per ottenere capitoli e volumi da Anilist
-    function get_capitoli_volumi_from_anilist($manga_id) {
+    function get_info_manga_anilist($manga_id) {
         $ret = [];
 
         if (!isset($manga_id) || !preg_match('/^\d+$/', $manga_id)) {
@@ -30,6 +28,10 @@
                     }
                     chapters
                     volumes
+                    format
+                    startDate {
+                        year
+                    }
                 }
             }
         ';
@@ -61,13 +63,16 @@
 
         $data = json_decode($result, true);
 
-        if (isset($data["data"]["Media"]["chapters"]) || isset($data["data"]["Media"]["volumes"])) {
+        if (isset($data["data"]["Media"])) {
+            $media = $data["data"]["Media"];
             $ret["status"] = "OK";
             $ret["msg"] = "";
             $ret["dato"] = [
-                "capitoli" => $data["data"]["Media"]["chapters"],
-                "volumi" => $data["data"]["Media"]["volumes"],
-                "titolo" => $data["data"]["Media"]["title"]["romaji"]
+                "capitoli" => $media["chapters"],
+                "volumi" => $media["volumes"],
+                "titolo" => $media["title"]["romaji"],
+                "formato" => $media["format"],
+                "anno" => $media["startDate"]["year"]
             ];
         } else {
             $ret["status"] = "ERR";
@@ -77,8 +82,6 @@
 
         return $ret;
     }
-
-    // --- Inizio codice principale ---
 
     if (isset($_GET["utente_id"]) && isset($_GET["manga_id"])) {
 
@@ -95,24 +98,26 @@
         $utente_id = intval($utente_id);
         $manga_id = intval($manga_id);
 
-        // Recuperiamo il titolo, capitoli e volumi massimi da Anilist
-        $response = get_capitoli_volumi_from_anilist($manga_id);
+        $response = get_info_manga_anilist($manga_id);
         if ($response["status"] === "OK") {
             $titolo = $response["dato"]["titolo"];
             $cap_max = $response["dato"]["capitoli"];
             $vol_max = $response["dato"]["volumi"];
+            $formato = $response["dato"]["formato"];
+            $anno = $response["dato"]["anno"];
         } else {
             $titolo = "Titolo non disponibile";
             $cap_max = 0;
             $vol_max = 0;
+            $formato = null;
+            $anno = null;
         }
 
-        // Altri parametri
         $status = "Planning";
         if (isset($_GET["status"])) {
-            $status = trim($_GET["status"]);
-            if (!in_array($status, ["Reading", "Complete", "Planning", "Paused", "Dropped"])) {
-                $status = "Planning";
+            $status_tmp = trim($_GET["status"]);
+            if (in_array($status_tmp, ["Reading", "Complete", "Planning", "Paused", "Dropped"])) {
+                $status = $status_tmp;
             }
         }
 
@@ -133,6 +138,9 @@
         if (isset($_GET["capitoli_letti"])) {
             if (preg_match('/^\d+$/', $_GET["capitoli_letti"])) {
                 $capitoli_letti = intval($_GET["capitoli_letti"]);
+                if ($cap_max && $capitoli_letti > $cap_max) {
+                    $capitoli_letti = $cap_max;
+                }
             }
         }
 
@@ -140,43 +148,38 @@
         if (isset($_GET["volumi_letti"])) {
             if (preg_match('/^\d+$/', $_GET["volumi_letti"])) {
                 $volumi_letti = intval($_GET["volumi_letti"]);
+                if ($vol_max && $volumi_letti > $vol_max) {
+                    $volumi_letti = $vol_max;
+                }
             }
         }
 
-        // Date
         $start_date = null;
+        if (isset($_GET["start_date"])) {
+            if (valida_data($_GET["start_date"])) {
+                $start_date = $_GET["start_date"];
+            }
+        }
+
         $end_date = null;
-
-        if (isset($_GET["start_date"]) && valida_data($_GET["start_date"])) {
-            $start_date = $_GET["start_date"];
-        }
-
-        if (isset($_GET["end_date"]) && valida_data($_GET["end_date"])) {
-            $end_date = $_GET["end_date"];
-        }
-
-        // Logica date in base allo status
-        if ($status === "Planning") {
-            // leave null
-        } else if ($status === "Reading") {
-            if (!$start_date) {
-                $start_date = date("Y-m-d");
+        if (isset($_GET["end_date"])) {
+            if (valida_data($_GET["end_date"])) {
+                $end_date = $_GET["end_date"];
             }
-        } else if ($status === "Complete") {
+        }
+
+        if ($status === "Reading" && !$start_date) {
+            $start_date = date("Y-m-d");
+        } elseif ($status === "Complete") {
             $oggi = date("Y-m-d");
-            if (!$start_date) {
-                $start_date = $oggi;
-            }
-            if (!$end_date) {
-                $end_date = $oggi;
-            }
+            if (!$start_date) $start_date = $oggi;
+            if (!$end_date) $end_date = $oggi;
         }
 
-        // Correzione date invertite
         if ($start_date && $end_date && strtotime($start_date) > strtotime($end_date)) {
-            $temp = $start_date;
+            $tmp = $start_date;
             $start_date = $end_date;
-            $end_date = $temp;
+            $end_date = $tmp;
         }
 
         $note = null;
@@ -191,8 +194,7 @@
             }
         }
 
-        // Controllo se già esiste attività
-        $stmt = $conn->prepare("SELECT id, status, punteggio, capitoli_letti, volumi_letti, data_inizio, data_fine, note, preferito
+        $stmt = $conn->prepare("SELECT id, status, punteggio, capitoli_letti, volumi_letti, data_inizio, data_fine, note, preferito 
             FROM attivita_manga 
             WHERE utente_id = ? AND riferimento_api = ?");
         $stmt->bind_param("ii", $utente_id, $manga_id);
@@ -202,24 +204,21 @@
         if ($row = $result->fetch_assoc()) {
             $attivita_id = $row["id"];
 
-            // Controllo modifiche
             if ($status !== $row["status"] || $punteggio != $row["punteggio"] || $capitoli_letti != $row["capitoli_letti"] || $volumi_letti != $row["volumi_letti"] || $start_date !== $row["data_inizio"] || $end_date !== $row["data_fine"] || $note !== $row["note"] || $preferito != $row["preferito"]) {
                 $stmt_update = $conn->prepare("UPDATE attivita_manga 
-                    SET titolo = ?, status = ?, punteggio = ?, capitoli_letti = ?, volumi_letti = ?, data_inizio = ?, data_fine = ?, note = ?, preferito = ?, data_ora = NOW()
+                    SET titolo = ?, status = ?, punteggio = ?, capitoli_letti = ?, volumi_letti = ?, data_inizio = ?, data_fine = ?, note = ?, preferito = ?, formato = ?, anno = ?, data_ora = NOW()
                     WHERE id = ?");
-                $stmt_update->bind_param("ssdiisssii", $titolo, $status, $punteggio, $capitoli_letti, $volumi_letti, $start_date, $end_date, $note, $preferito, $attivita_id);
+                $stmt_update->bind_param("ssdiisssisii", $titolo, $status, $punteggio, $capitoli_letti, $volumi_letti, $start_date, $end_date, $note, $preferito, $formato, $anno, $attivita_id);
                 $stmt_update->execute();
 
                 $ret["status"] = "OK";
                 $ret["message"] = "Attività aggiornata.";
             }
-
         } else {
             $stmt_insert = $conn->prepare("INSERT INTO attivita_manga 
-            (utente_id, titolo, riferimento_api, status, punteggio, capitoli_letti, volumi_letti, data_inizio, data_fine, note, preferito)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt_insert->bind_param("isssdiiissi", $utente_id, $titolo, $manga_id, $status, $punteggio, $capitoli_letti, $volumi_letti, $start_date, $end_date, $note, $preferito);
-
+                (utente_id, titolo, riferimento_api, status, punteggio, capitoli_letti, volumi_letti, data_inizio, data_fine, note, preferito, formato, anno)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt_insert->bind_param("isssdiisssisi", $utente_id, $titolo, $manga_id, $status, $punteggio, $capitoli_letti, $volumi_letti, $start_date, $end_date, $note, $preferito, $formato, $anno);
             $stmt_insert->execute();
 
             $ret["status"] = "OK";
