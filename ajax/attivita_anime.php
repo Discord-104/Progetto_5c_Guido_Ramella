@@ -219,7 +219,7 @@
                 $stmt_update = $conn->prepare("UPDATE attivita_anime 
                     SET status = ?, punteggio = ?, episodi_visti = ?, data_inizio = ?, data_fine = ?, note = ?, rewatch = ?, preferito = ?, titolo = ?, anno_uscita = ?, formato = ?, data_ora = NOW() 
                     WHERE id = ?");
-                $stmt_update->bind_param("sdisssisssii", $status, $punteggio, $episodi_visti, $start_date, $end_date, $note, $rewatch, $preferito, $titolo, $anno_uscita, $formato, $attivita_id);
+                $stmt_update->bind_param("sdisssissssi", $status, $punteggio, $episodi_visti, $start_date, $end_date, $note, $rewatch, $preferito, $titolo, $anno_uscita, $formato, $attivita_id);
                 $stmt_update->execute();
 
                 $ret["status"] = "OK";

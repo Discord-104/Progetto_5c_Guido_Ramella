@@ -111,8 +111,12 @@
                     stato = "Ha smesso di leggere";
                 }
 
+                let anno = attività[i]["anno"];
+                let formato = attività[i]["formato"];
+
                 descrizione = "<strong>" + username + "</strong> " + stato + " <strong>" +
-                            titolo + "</strong><br>Capitoli letti: " + capitoli;
+                            titolo + "</strong><br>Capitoli letti: " + capitoli +
+                            "<br>Anno: " + anno + " - Formato: " + formato;
 
             }
             // === ANIME ===
@@ -131,8 +135,12 @@
                     stato = "Ha smesso di guardare";
                 }
 
+                let anno = attività[i]["anno_uscita"];
+                let formato = attività[i]["formato"];
+
                 descrizione = "<strong>" + username + "</strong> " + stato + " <strong>" +
-                            titolo + "</strong><br>Episodi visti: " + episodi;
+                            titolo + "</strong><br>Episodi visti: " + episodi +
+                            "<br>Anno: " + anno + " - Formato: " + formato;
             }
 
             riga.innerHTML = "<div class='attivita-card'>" +

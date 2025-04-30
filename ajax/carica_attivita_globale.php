@@ -16,7 +16,7 @@ if (!$conn) {
 $attivita = [];
 
 // === ANIME ===
-$sql_anime = "SELECT u.username, aa.titolo, aa.riferimento_api, aa.episodi_visti, aa.status
+$sql_anime = "SELECT u.username, aa.titolo, aa.riferimento_api, aa.episodi_visti, aa.status, aa.anno_uscita, aa.formato
               FROM attivita_anime aa
               INNER JOIN utenti u ON aa.utente_id = u.id
               ORDER BY aa.data_ora DESC";
@@ -54,10 +54,8 @@ if ($result_anime) {
 
             if ($response !== false) {
                 $data = json_decode($response, true);
-                if (isset($data['data']) && isset($data['data']['Media'])) {
-                    if (isset($data['data']['Media']['coverImage']) && isset($data['data']['Media']['coverImage']['large'])) {
-                        $immagine = $data['data']['Media']['coverImage']['large'];
-                    }
+                if (isset($data['data']['Media']['coverImage']['large'])) {
+                    $immagine = $data['data']['Media']['coverImage']['large'];
                 }
             }
         }
@@ -67,13 +65,15 @@ if ($result_anime) {
             "titolo" => $riga["titolo"],
             "episodi_visti" => $riga["episodi_visti"],
             "status" => $riga["status"],
+            "anno_uscita" => $riga["anno_uscita"],
+            "formato" => $riga["formato"],
             "immagine" => $immagine
         ];
     }
 }
 
 // === MANGA ===
-$sql_manga = "SELECT u.username, am.titolo, am.riferimento_api, am.capitoli_letti, am.status
+$sql_manga = "SELECT u.username, am.titolo, am.riferimento_api, am.capitoli_letti, am.status, am.anno, am.formato
               FROM attivita_manga am
               INNER JOIN utenti u ON am.utente_id = u.id
               ORDER BY am.data_ora DESC";
@@ -111,10 +111,8 @@ if ($result_manga) {
 
             if ($response !== false) {
                 $data = json_decode($response, true);
-                if (isset($data['data']) && isset($data['data']['Media'])) {
-                    if (isset($data['data']['Media']['coverImage']) && isset($data['data']['Media']['coverImage']['large'])) {
-                        $immagine = $data['data']['Media']['coverImage']['large'];
-                    }
+                if (isset($data['data']['Media']['coverImage']['large'])) {
+                    $immagine = $data['data']['Media']['coverImage']['large'];
                 }
             }
         }
@@ -124,6 +122,8 @@ if ($result_manga) {
             "titolo" => $riga["titolo"],
             "capitoli_letti" => $riga["capitoli_letti"],
             "status" => $riga["status"],
+            "anno" => $riga["anno"],
+            "formato" => $riga["formato"],
             "immagine" => $immagine
         ];
     }
@@ -132,3 +132,5 @@ if ($result_manga) {
 // Output finale
 echo json_encode(["status" => "OK", "data" => $attivita]);
 die();
+
+?>
