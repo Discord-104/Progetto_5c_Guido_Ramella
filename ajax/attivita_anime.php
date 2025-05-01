@@ -1,6 +1,7 @@
 <?php
-     //TODO: controllo ep massimi quando si mette complete e passare il titolo con l'endpoint di anilist con controllo id
-     //Binding utente_id
+    //TODO: controllo ep massimi quando si mette complete e passare il titolo con l'endpoint di anilist con controllo id
+    //Binding utente_id
+
     require_once("../classi/db.php");
     session_start();
 
@@ -24,6 +25,7 @@
                         year
                     }
                     format
+                    episodes
                 }
             }
         ';
@@ -60,11 +62,12 @@
             $ret["msg"] = "";
             $ret["dato"] = [
                 "anno_uscita" => $data["data"]["Media"]["startDate"]["year"],
-                "formato" => $data["data"]["Media"]["format"]
+                "formato" => $data["data"]["Media"]["format"],
+                "ep_max" => $data["data"]["Media"]["episodes"]
             ];
         } else {
             $ret["status"] = "ERR";
-            $ret["msg"] = "Informazioni su anno e formato non trovate su Anilist.";
+            $ret["msg"] = "Informazioni su anno, formato e episodi non trovate su Anilist.";
             $ret["dato"] = null;
         }
 
@@ -114,8 +117,12 @@
         if (isset($_GET["punteggio"])) {
             if (preg_match('/^-?\d+(\.\d+)?$/', $_GET["punteggio"])) {
                 $punteggio = floatval($_GET["punteggio"]);
-                if ($punteggio < 0) $punteggio = 0;
-                if ($punteggio > 10) $punteggio = 10;
+                if ($punteggio < 0){
+                    $punteggio = 0;
+                }
+                if ($punteggio > 10){
+                    $punteggio = 10;
+                } 
             }
         }
 
@@ -127,13 +134,24 @@
             }
         }
 
-        // Recuperiamo anno di uscita e formato da Anilist
+        // Recuperiamo anno di uscita, formato e episodi da Anilist
         $response = get_anno_formato_from_anilist($anime_id);
         $anno_uscita = null;
         $formato = null;
+        $ep_max = 0;
         if ($response["status"] === "OK") {
             $anno_uscita = $response["dato"]["anno_uscita"];
             $formato = $response["dato"]["formato"];
+            $ep_max = $response["dato"]["ep_max"];
+        }
+
+        // Aggiungi controllo per episodi visti
+        if ($episodi_visti > $ep_max && $ep_max) {
+            $status = "Complete";
+            $episodi_visti = $ep_max;
+        } elseif ($episodi_visti < 0) {
+            $status = "Planning";
+            $episodi_visti = 0;
         }
 
         // Date
@@ -150,7 +168,6 @@
 
         // Logica in base allo status
         if ($status === "Planning") {
-            // In Planning, se date non messe, rimangono null
             if (!$start_date) {
                 $start_date = null;
             }
@@ -158,13 +175,10 @@
                 $end_date = null;
             }
         } else if ($status === "Watching") {
-            // In Watching, se start_date non messo, metti oggi
             if (!$start_date) {
                 $start_date = date("Y-m-d");
             }
-            // end_date resta null se non messa
         } else if ($status === "Complete") {
-            // In Complete, se start_date o end_date non messi, metti oggi
             $oggi = date("Y-m-d");
             if (!$start_date) {
                 $start_date = $oggi;
@@ -174,7 +188,6 @@
             }
         }
 
-        // Controllo coerenza date
         if ($start_date && $end_date) {
             if (strtotime($start_date) > strtotime($end_date)) {
                 $temp = $start_date;
@@ -227,16 +240,20 @@
                 $ret["message"] = "Attività aggiornata correttamente!";
             }
         } else {
-            // Inserisci nuova attività
             $stmt_insert = $conn->prepare("INSERT INTO attivita_anime (utente_id, riferimento_api, status, punteggio, episodi_visti, data_inizio, data_fine, note, rewatch, preferito, titolo, anno_uscita, formato) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt_insert->bind_param("iisdissssisss", $utente_id, $anime_id, $status, $punteggio, $episodi_visti, $start_date, $end_date, $note, $rewatch, $preferito, $titolo, $anno_uscita, $formato);
             $stmt_insert->execute();
-            
+
             $ret["status"] = "OK";
-            $ret["message"] = "Attività inserita correttamente!";
+            $ret["message"] = "Attività aggiunta correttamente!";
         }
 
         echo json_encode($ret);
+    } else {
+        $ret["status"] = "ERROR";
+        $ret["message"] = "ID utente o ID anime non forniti.";
+        echo json_encode($ret);
     }
+
 ?>

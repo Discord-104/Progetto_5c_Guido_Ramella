@@ -1,24 +1,24 @@
 <?php
-    //TODO: controllo cap e volumi massimi quando si mette complete e passare il titolo con l'endpoint di anilist
-    //Binding utente_id
     require_once("../classi/db.php");
     session_start();
 
     $ret = [];
 
     function valida_data($data) {
-        $d = DateTime::createFromFormat('Y-m-d', $data);
-        return $d && $d->format('Y-m-d') === $data;
+        $date_format = 'Y-m-d';
+        $d = DateTime::createFromFormat($date_format, $data);
+        return $d && $d->format($date_format) === $data;
     }
 
-    function get_info_manga_anilist($manga_id) {
-        $ret = [];
+    // Funzione per ottenere titolo, capitoli max e volumi max da Anilist
+    function get_info_manga_da_anilist($manga_id) {
+        $risultato = [];
 
         if (!isset($manga_id) || !preg_match('/^\d+$/', $manga_id)) {
-            $ret["status"] = "ERR";
-            $ret["msg"] = "ID manga mancante o non valido.";
-            $ret["dato"] = null;
-            return $ret;
+            $risultato["status"] = "ERR";
+            $risultato["msg"] = "ID manga non valido o mancante.";
+            $risultato["dato"] = null;
+            return $risultato;
         }
 
         $query = '
@@ -29,7 +29,6 @@
                     }
                     chapters
                     volumes
-                    format
                     startDate {
                         year
                     }
@@ -56,33 +55,46 @@
         $result = file_get_contents('https://graphql.anilist.co', false, $context);
 
         if ($result === false) {
-            $ret["status"] = "ERR";
-            $ret["msg"] = "Errore nella connessione ad Anilist.";
-            $ret["dato"] = null;
-            return $ret;
+            $risultato["status"] = "ERR";
+            $risultato["msg"] = "Errore nella connessione ad Anilist.";
+            $risultato["dato"] = null;
+            return $risultato;
         }
 
         $data = json_decode($result, true);
 
         if (isset($data["data"]["Media"])) {
-            $media = $data["data"]["Media"];
-            $ret["status"] = "OK";
-            $ret["msg"] = "";
-            $ret["dato"] = [
-                "capitoli" => $media["chapters"],
-                "volumi" => $media["volumes"],
-                "titolo" => $media["title"]["romaji"],
-                "formato" => $media["format"],
-                "anno" => $media["startDate"]["year"]
+            $manga = $data["data"]["Media"];
+            
+            // Usa solo il titolo romaji
+            $titolo = "Titolo non disponibile";
+            if (!empty($manga["title"]["romaji"])) {
+                $titolo = $manga["title"]["romaji"];
+            }
+
+            $risultato["status"] = "OK";
+            $risultato["msg"] = "";
+            $anno_uscita = null;
+            if (isset($manga["startDate"]["year"])) {
+                $anno_uscita = $manga["startDate"]["year"];
+            }
+            
+            $risultato["dato"] = [
+                "titolo" => $titolo,
+                "capitoli_max" => $manga["chapters"], // Può essere null
+                "volumi_max" => $manga["volumes"],    // Può essere null
+                "anno_uscita" => $anno_uscita
             ];
         } else {
-            $ret["status"] = "ERR";
-            $ret["msg"] = "Informazioni non trovate su Anilist.";
-            $ret["dato"] = null;
+            $risultato["status"] = "ERR";
+            $risultato["msg"] = "Dati non trovati su Anilist.";
+            $risultato["dato"] = null;
         }
 
-        return $ret;
+        return $risultato;
     }
+
+    // --- Inizio codice principale ---
 
     if (isset($_GET["utente_id"]) && isset($_GET["manga_id"])) {
 
@@ -99,136 +111,207 @@
         $utente_id = intval($utente_id);
         $manga_id = intval($manga_id);
 
-        $response = get_info_manga_anilist($manga_id);
-        if ($response["status"] === "OK") {
-            $titolo = $response["dato"]["titolo"];
-            $cap_max = $response["dato"]["capitoli"];
-            $vol_max = $response["dato"]["volumi"];
-            $formato = $response["dato"]["formato"];
-            $anno = $response["dato"]["anno"];
-        } else {
-            $titolo = "Titolo non disponibile";
-            $cap_max = 0;
-            $vol_max = 0;
-            $formato = null;
-            $anno = null;
+        // Ottieni informazioni dal manga da Anilist
+        $info_manga = get_info_manga_da_anilist($manga_id);
+        
+        $titolo = "Titolo non disponibile";
+        $capitoli_max = null;
+        $volumi_max = null;
+        $anno_uscita = null;
+        
+        if ($info_manga["status"] === "OK") {
+            $dato = $info_manga["dato"];
+            if (!empty($dato["titolo"])) {
+                $titolo = $dato["titolo"];
+            }
+            $capitoli_max = $dato["capitoli_max"];
+            $volumi_max = $dato["volumi_max"]; 
+            $anno_uscita = $dato["anno_uscita"];
+        }
+        
+        // Se il titolo è stato passato manualmente, lo utilizziamo solo se non abbiamo recuperato niente da Anilist
+        if ($titolo == "Titolo non disponibile" && isset($_GET["titolo"]) && !empty($_GET["titolo"])) {
+            $titolo = trim($_GET["titolo"]);
         }
 
+        // Status
         $status = "Planning";
         if (isset($_GET["status"])) {
-            $status_tmp = trim($_GET["status"]);
-            if (in_array($status_tmp, ["Reading", "Complete", "Planning", "Paused", "Dropped"])) {
-                $status = $status_tmp;
+            $status = trim($_GET["status"]);
+            if (!in_array($status, ["Reading", "Complete", "Planning", "Paused", "Dropped"])) {
+                $status = "Planning";
             }
         }
 
+        // Punteggio
         $punteggio = 0;
         if (isset($_GET["punteggio"])) {
             if (preg_match('/^-?\d+(\.\d+)?$/', $_GET["punteggio"])) {
                 $punteggio = floatval($_GET["punteggio"]);
-                if ($punteggio < 0){
+                if ($punteggio < 0) {
                     $punteggio = 0;
-                } 
-                if ($punteggio > 10){
-                    $punteggio = 10;
                 }
+                if ($punteggio > 10) {
+                    $punteggio = 10;
+                } 
             }
         }
 
+        // Capitoli letti con controllo sul massimo
         $capitoli_letti = 0;
         if (isset($_GET["capitoli_letti"])) {
-            if (preg_match('/^\d+$/', $_GET["capitoli_letti"])) {
+            if (preg_match('/^-?\d+$/', $_GET["capitoli_letti"])) {
                 $capitoli_letti = intval($_GET["capitoli_letti"]);
-                if ($cap_max && $capitoli_letti > $cap_max) {
-                    $capitoli_letti = $cap_max;
+                
+                // Se negativo, imposta a 0
+                if ($capitoli_letti < 0) {
+                    $capitoli_letti = 0;
+                }
+                
+                // Se supera il massimo e il massimo è noto, imposta al massimo e stato a Complete
+                if ($capitoli_max !== null && $capitoli_letti > $capitoli_max) {
+                    $capitoli_letti = $capitoli_max;
+                    $status = "Complete";
                 }
             }
         }
 
+        // Volumi letti con controllo sul massimo
         $volumi_letti = 0;
         if (isset($_GET["volumi_letti"])) {
-            if (preg_match('/^\d+$/', $_GET["volumi_letti"])) {
+            if (preg_match('/^-?\d+$/', $_GET["volumi_letti"])) {
                 $volumi_letti = intval($_GET["volumi_letti"]);
-                if ($vol_max && $volumi_letti > $vol_max) {
-                    $volumi_letti = $vol_max;
+                
+                // Se negativo, imposta a 0
+                if ($volumi_letti < 0) {
+                    $volumi_letti = 0;
+                }
+                
+                // Se supera il massimo e il massimo è noto, imposta al massimo e stato a Complete
+                if ($volumi_max !== null && $volumi_letti > $volumi_max) {
+                    $volumi_letti = $volumi_max;
+                    $status = "Complete";
                 }
             }
         }
 
+        // Date
         $start_date = null;
-        if (isset($_GET["start_date"])) {
-            if (valida_data($_GET["start_date"])) {
-                $start_date = $_GET["start_date"];
-            }
-        }
-
         $end_date = null;
-        if (isset($_GET["end_date"])) {
-            if (valida_data($_GET["end_date"])) {
-                $end_date = $_GET["end_date"];
+
+        if (isset($_GET["start_date"]) && valida_data($_GET["start_date"])) {
+            $start_date = $_GET["start_date"];
+        }
+
+        if (isset($_GET["end_date"]) && valida_data($_GET["end_date"])) {
+            $end_date = $_GET["end_date"];
+        }
+
+        // Logica in base allo status
+        if ($status === "Planning") {
+            if (!$start_date) {
+                $start_date = null;
+            }
+            if (!$end_date) {
+                $end_date = null;
+            }
+        } else if ($status === "Reading") {
+            if (!$start_date) {
+                $start_date = date("Y-m-d");
+            }
+        } else if ($status === "Complete") {
+            $oggi = date("Y-m-d");
+            if (!$start_date) {
+                $start_date = $oggi;
+            }
+            if (!$end_date) {
+                $end_date = $oggi;
             }
         }
 
-        if ($status === "Reading" && !$start_date) {
-            $start_date = date("Y-m-d");
-        } elseif ($status === "Complete") {
-            $oggi = date("Y-m-d");
-            if (!$start_date) $start_date = $oggi;
-            if (!$end_date) $end_date = $oggi;
+        if ($start_date && $end_date) {
+            if (strtotime($start_date) > strtotime($end_date)) {
+                $temp = $start_date;
+                $start_date = $end_date;
+                $end_date = $temp;
+            }
         }
 
-        if ($start_date && $end_date && strtotime($start_date) > strtotime($end_date)) {
-            $tmp = $start_date;
-            $start_date = $end_date;
-            $end_date = $tmp;
-        }
-
+        // Note
         $note = null;
         if (isset($_GET["note"])) {
             $note = trim($_GET["note"]);
         }
 
-        $preferito = 0;
-        if (isset($_GET["preferito"])) {
-            if (preg_match('/^\d+$/', $_GET["preferito"])) {
-                $preferito = intval($_GET["preferito"]);
+        // Rereading con controllo per valori negativi
+        $rereading = 0;
+        if (isset($_GET["reread"])) {
+            if (preg_match('/^-?\d+$/', $_GET["reread"])) {
+                $rereading = intval($_GET["reread"]);
+                // Se negativo, imposta a 0
+                if ($rereading < 0) {
+                    $rereading = 0;
+                }
             }
         }
 
-        $stmt = $conn->prepare("SELECT id, status, punteggio, capitoli_letti, volumi_letti, data_inizio, data_fine, note, preferito 
-            FROM attivita_manga 
-            WHERE utente_id = ? AND riferimento_api = ?");
+        // Preferito - assicurati che sia 0 o 1
+        $preferito = 0;
+        if (isset($_GET["preferito"])) {
+            if (intval($_GET["preferito"]) == 1) {
+                $preferito = 1;
+            } else {
+                $preferito = 0;
+            }
+        }
+
+        // Controllo se esiste già attività
+        $stmt = $conn->prepare("SELECT id FROM attivita_manga 
+                               WHERE utente_id = ? AND riferimento_api = ?");
         $stmt->bind_param("ii", $utente_id, $manga_id);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($row = $result->fetch_assoc()) {
             $attivita_id = $row["id"];
+            
+            // Correzione: aggiunta data_ora=NOW() per aggiornare il timestamp, volumi_letti e anno_uscita
+            $stmt_update = $conn->prepare("UPDATE attivita_manga 
+                SET titolo = ?, status = ?, punteggio = ?, capitoli_letti = ?, volumi_letti = ?, 
+                    data_inizio = ?, data_fine = ?, note = ?, rereading = ?, preferito = ?, anno = ?, data_ora = NOW() 
+                WHERE id = ?");
+            $stmt_update->bind_param("ssdiisssisii", $titolo, $status, $punteggio, $capitoli_letti, $volumi_letti, 
+                                   $start_date, $end_date, $note, $rereading, $preferito, $anno_uscita, $attivita_id);
+            $stmt_update->execute();
 
-            if ($status !== $row["status"] || $punteggio != $row["punteggio"] || $capitoli_letti != $row["capitoli_letti"] || $volumi_letti != $row["volumi_letti"] || $start_date !== $row["data_inizio"] || $end_date !== $row["data_fine"] || $note !== $row["note"] || $preferito != $row["preferito"]) {
-                $stmt_update = $conn->prepare("UPDATE attivita_manga 
-                    SET titolo = ?, status = ?, punteggio = ?, capitoli_letti = ?, volumi_letti = ?, data_inizio = ?, data_fine = ?, note = ?, preferito = ?, formato = ?, anno = ?, data_ora = NOW()
-                    WHERE id = ?");
-                $stmt_update->bind_param("ssdiisssisii", $titolo, $status, $punteggio, $capitoli_letti, $volumi_letti, $start_date, $end_date, $note, $preferito, $formato, $anno, $attivita_id);
-                $stmt_update->execute();
-
-                $ret["status"] = "OK";
-                $ret["message"] = "Attività aggiornata.";
-            }
+            $ret["status"] = "OK";
+            $ret["message"] = "Attività aggiornata correttamente!";
         } else {
             $stmt_insert = $conn->prepare("INSERT INTO attivita_manga 
-                (utente_id, titolo, riferimento_api, status, punteggio, capitoli_letti, volumi_letti, data_inizio, data_fine, note, preferito, formato, anno)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt_insert->bind_param("isssdiisssisi", $utente_id, $titolo, $manga_id, $status, $punteggio, $capitoli_letti, $volumi_letti, $start_date, $end_date, $note, $preferito, $formato, $anno);
+                (utente_id, riferimento_api, titolo, status, punteggio, capitoli_letti, volumi_letti, 
+                 data_inizio, data_fine, note, rereading, preferito, anno, data_ora) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+            $stmt_insert->bind_param("iissdiisssiis", $utente_id, $manga_id, $titolo, $status, $punteggio, 
+                                    $capitoli_letti, $volumi_letti, $start_date, $end_date, $note, 
+                                    $rereading, $preferito, $anno_uscita);
             $stmt_insert->execute();
 
             $ret["status"] = "OK";
-            $ret["message"] = "Attività inserita.";
+            $ret["message"] = "Attività aggiunta correttamente!";
+            
+            // Aggiungi informazioni aggiuntive per debug/feedback
+            $ret["info"] = [
+                "titolo_trovato" => $titolo != "Titolo non disponibile",
+                "capitoli_max" => $capitoli_max,
+                "volumi_max" => $volumi_max,
+                "anno_uscita" => $anno_uscita
+            ];
         }
+
+        echo json_encode($ret);
     } else {
         $ret["status"] = "ERROR";
-        $ret["message"] = "Parametri mancanti.";
+        $ret["message"] = "ID utente o ID manga non forniti.";
+        echo json_encode($ret);
     }
-
-    echo json_encode($ret);
 ?>

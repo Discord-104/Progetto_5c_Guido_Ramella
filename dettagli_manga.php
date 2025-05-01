@@ -114,43 +114,42 @@ $utente_id = (int) $_SESSION["utente_id"];
         }
 
         async function salvaAttivita() {
-            let status = document.getElementById('status').value;
-            let punteggio = document.getElementById('punteggio').value;
-            let capitoli_letti = document.getElementById('capitoli_letti').value;
-            let startDate = document.getElementById('start_date').value;
-            let endDate = document.getElementById('end_date').value;
-            let note = document.getElementById('note').value;
-            let reread = document.getElementById('rilettura').value;
-            let preferito = 0;
-            if (document.getElementById('preferito').checked) {
-                preferito = 1;
-            }
-
-            let titolo = document.querySelector('#contenuto h2').innerText;
-
-            let url = "ajax/attivita_manga.php?";
-            url += "utente_id=" + <?= $utente_id ?>;
-            url += "&manga_id=" + <?= $id ?>;
-            url += "&titolo=" + titolo;
-            url += "&status=" + status;
-            url += "&punteggio=" + punteggio;
-            url += "&capitoli_letti=" + capitoli_letti;
-            url += "&start_date=" + startDate;
-            url += "&end_date=" + endDate;
-            url += "&note=" + note;
-            url += "&reread=" + reread;
-            url += "&preferito=" + preferito;
-
-            let response = await fetch(url);
-            let data = await response.json();
-
-            if (data.status == "OK") {
-                alert("Attività salvata con successo!");
-                toggleEditor();
-            } else {
-                alert("Errore nel salvataggio dell'attività: " + data.message);
-            }
+        let status = document.getElementById('status').value;
+        let punteggio = document.getElementById('punteggio').value;
+        let capitoli_letti = document.getElementById('capitoli_letti').value;
+        let volumi_letti = document.getElementById('volumi_letti').value; // Ottieni il valore dei volumi letti
+        let startDate = document.getElementById('start_date').value;
+        let endDate = document.getElementById('end_date').value;
+        let note = document.getElementById('note').value;
+        let reread = document.getElementById('rilettura').value;
+        let preferito = 0;
+        if (document.getElementById('preferito').checked) {
+            preferito = 1;
         }
+
+        let url = "ajax/attivita_manga.php?";
+        url += "utente_id=" + <?= $utente_id ?>;
+        url += "&manga_id=" + <?= $id ?>;
+        url += "&status=" + status;
+        url += "&punteggio=" + punteggio;
+        url += "&capitoli_letti=" + capitoli_letti;
+        url += "&volumi_letti=" + volumi_letti; // Aggiungi il parametro volumi_letti all'URL
+        url += "&start_date=" + startDate;
+        url += "&end_date=" + endDate;
+        url += "&note=" + note;
+        url += "&reread=" + reread;
+        url += "&preferito=" + preferito;
+
+        let response = await fetch(url);
+        let data = await response.json();
+
+        if (data.status == "OK") {
+            alert("Attività salvata con successo!");
+            toggleEditor();
+        } else {
+            alert("Errore nel salvataggio dell'attività: " + data.message);
+        }
+    }
 
         document.addEventListener("DOMContentLoaded", async function () {
             await caricaDettagliManga(<?= $id ?>);

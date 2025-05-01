@@ -130,16 +130,15 @@
             }
         }
 
-        $punteggio = 0.0;
+        $punteggio = 0;
         if (isset($_GET["punteggio"])) {
-            if (is_numeric($_GET["punteggio"])) {
+            if (preg_match('/^-?\d+(\.\d+)?$/', $_GET["punteggio"])) {
                 $punteggio = floatval($_GET["punteggio"]);
-                if ($punteggio < 0) {
-                    $punteggio = 0.0;
-                } else {
-                    if ($punteggio > 10) {
-                        $punteggio = 10.0;
-                    }
+                if ($punteggio < 0){
+                    $punteggio = 0;
+                } 
+                if ($punteggio > 10){
+                    $punteggio = 10;
                 }
             }
         }
