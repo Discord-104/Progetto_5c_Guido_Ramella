@@ -1,5 +1,6 @@
 <?php
     //TODO: controllo cap e volumi massimi quando si mette complete e passare il titolo con l'endpoint di anilist
+    //Binding utente_id
     require_once("../classi/db.php");
     session_start();
 

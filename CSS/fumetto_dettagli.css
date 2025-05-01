@@ -1,7 +1,10 @@
 .container {
-    width: 90%;
+    background: white;
+    max-width: 900px;
     margin: auto;
-    max-width: 800px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #ccc;
 }
 
 .info {
@@ -29,4 +32,34 @@ ul {
 .errore {
     color: red;
     font-weight: bold;
+}
+
+.editor {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #ccc;
+    display: none;
+}
+
+.editor input, .editor select, .editor textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.editor button {
+    background-color: #28a745;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.editor button:hover {
+    background-color: #218838;
 }
