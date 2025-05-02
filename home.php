@@ -3,7 +3,6 @@
     require_once("classi/Utente.php");
     session_start();
     
-
     // Verifica se l'utente è loggato
     if (!isset($_SESSION["utente_id"])) {
         header("Location: login.php"); // Se non è loggato, reindirizza alla pagina di login
@@ -63,104 +62,123 @@
 
     <a class="logout-link" href="logout.php">Esci</a>
 
-
     <script>
         async function caricaAttivita() {
-        let contenitore = document.getElementById("sezione_attivita");
-        contenitore.innerHTML = "";
+            let contenitore = document.getElementById("sezione_attivita");
+            contenitore.innerHTML = "";
 
-        let response = await fetch("ajax/carica_attivita_globale.php");
+            let response = await fetch("ajax/carica_attivita_globale.php");
 
-        if (!response.ok) {
-            console.error("Errore nella fetch delle attività globali");
-            return;
-        }
-
-        let txt = await response.text();
-        let datiRicevuti = JSON.parse(txt);
-
-        if (datiRicevuti["status"] === "ERR") {
-            console.error(datiRicevuti["msg"]);
-            return;
-        }
-
-        let attività = datiRicevuti["data"];
-
-        for (let i = 0; i < attività.length; i++) {
-            let riga = document.createElement("div");
-            riga.className = "attivita-item";
-
-            let descrizione = "";
-            let stato = "";
-            let username = attività[i]["username"];
-            let titolo = attività[i]["titolo"];
-
-            // === MANGA ===
-            if ("capitoli_letti" in attività[i]) {
-                let capitoli = attività[i]["capitoli_letti"];
-
-                if (attività[i]["status"] === "Planning") {
-                    stato = "Sta pianificando di leggere";
-                } else if (attività[i]["status"] === "Reading") {
-                    stato = "Sta leggendo";
-                } else if (attività[i]["status"] === "Complete") {
-                    stato = "Ha finito di leggere";
-                } else if (attività[i]["status"] === "Paused") {
-                    stato = "Messo in pausa";
-                } else if (attività[i]["status"] === "Dropped") {
-                    stato = "Ha smesso di leggere";
-                }
-
-                let anno = attività[i]["anno"];
-                let formato = attività[i]["formato"];
-
-                descrizione = "<strong>" + username + "</strong> " + stato + " <strong>" +
-                            titolo + "</strong><br>Capitoli letti: " + capitoli +
-                            "<br>Anno: " + anno + " - Formato: " + formato;
-
-            }
-            // === ANIME ===
-            else if ("episodi_visti" in attività[i]) {
-                let episodi = attività[i]["episodi_visti"];
-
-                if (attività[i]["status"] === "Planning") {
-                    stato = "Sta pianificando di guardare";
-                } else if (attività[i]["status"] === "Watching") {
-                    stato = "Sta guardando";
-                } else if (attività[i]["status"] === "Complete") {
-                    stato = "Ha finito di guardare";
-                } else if (attività[i]["status"] === "Paused") {
-                    stato = "Messo in pausa";
-                } else if (attività[i]["status"] === "Dropped") {
-                    stato = "Ha smesso di guardare";
-                }
-
-                let anno = attività[i]["anno_uscita"];
-                let formato = attività[i]["formato"];
-
-                descrizione = "<strong>" + username + "</strong> " + stato + " <strong>" +
-                            titolo + "</strong><br>Episodi visti: " + episodi +
-                            "<br>Anno: " + anno + " - Formato: " + formato;
+            if (!response.ok) {
+                console.error("Errore nella fetch delle attività globali");
+                return;
             }
 
-            riga.innerHTML = "<div class='attivita-card'>" +
-                                "<img src='" + attività[i]["immagine"] + "' alt='Copertina' class='copertina-anime'>" +
-                                "<div class='testo-attivita'>" + descrizione + "</div>" +
-                            "</div>";
+            let txt = await response.text();
+            let datiRicevuti = JSON.parse(txt);
 
-            contenitore.appendChild(riga);
+            if (datiRicevuti["status"] === "ERR") {
+                console.error(datiRicevuti["msg"]);
+                return;
+            }
+
+            let attività = datiRicevuti["data"];
+
+            for (let i = 0; i < attività.length; i++) {
+                let riga = document.createElement("div");
+                riga.className = "attivita-item";
+
+                let descrizione = "";
+                let stato = "";
+                let username = attività[i]["username"];
+                let titolo = attività[i]["titolo"];
+
+                // === MANGA ===
+                if ("capitoli_letti" in attività[i]) {
+                    let capitoli = attività[i]["capitoli_letti"];
+
+                    if (attività[i]["status"] === "Planning") {
+                        stato = "Sta pianificando di leggere";
+                    } else if (attività[i]["status"] === "Reading") {
+                        stato = "Sta leggendo";
+                    } else if (attività[i]["status"] === "Complete") {
+                        stato = "Ha finito di leggere";
+                    } else if (attività[i]["status"] === "Paused") {
+                        stato = "Messo in pausa";
+                    } else if (attività[i]["status"] === "Dropped") {
+                        stato = "Ha smesso di leggere";
+                    }
+
+                    let anno = attività[i]["anno"];
+                    let formato = attività[i]["formato"];
+
+                    descrizione = "<strong>" + username + "</strong> " + stato + " <strong>" +
+                                titolo + "</strong><br>Capitoli letti: " + capitoli +
+                                "<br>Anno: " + anno + " - Formato: " + formato;
+
+                }
+                // === ANIME ===
+                else if ("episodi_visti" in attività[i]) {
+                    let episodi = attività[i]["episodi_visti"];
+
+                    if (attività[i]["status"] === "Planning") {
+                        stato = "Sta pianificando di guardare";
+                    } else if (attività[i]["status"] === "Watching") {
+                        stato = "Sta guardando";
+                    } else if (attività[i]["status"] === "Complete") {
+                        stato = "Ha finito di guardare";
+                    } else if (attività[i]["status"] === "Paused") {
+                        stato = "Messo in pausa";
+                    } else if (attività[i]["status"] === "Dropped") {
+                        stato = "Ha smesso di guardare";
+                    }
+
+                    let anno = attività[i]["anno_uscita"];
+                    let formato = attività[i]["formato"];
+
+                    descrizione = "<strong>" + username + "</strong> " + stato + " <strong>" +
+                                titolo + "</strong><br>Episodi visti: " + episodi +
+                                "<br>Anno: " + anno + " - Formato: " + formato;
+                }
+                // === FUMETTI ===
+                else if ("pagine_lette" in attività[i]) {
+                    let pagine = attività[i]["pagine_lette"];
+
+                    if (attività[i]["status"] === "Planning") {
+                        stato = "Sta pianificando di leggere";
+                    } else if (attività[i]["status"] === "Reading") {
+                        stato = "Sta leggendo";
+                    } else if (attività[i]["status"] === "Complete") {
+                        stato = "Ha finito di leggere";
+                    } else if (attività[i]["status"] === "Paused") {
+                        stato = "Messo in pausa";
+                    } else if (attività[i]["status"] === "Dropped") {
+                        stato = "Ha smesso di leggere";
+                    }
+
+                    let anno = attività[i]["anno_uscita"];
+                    let volume = attività[i]["numero_volume"];
+
+                    descrizione = "<strong>" + username + "</strong> " + stato + " <strong>" +
+                                titolo + "</strong><br>Pagine lette: " + pagine +
+                                "<br>Anno: " + anno + " - Volume: " + volume;
+                }
+
+                riga.innerHTML = "<div class='attivita-card'>" +
+                                    "<img src='" + attività[i]["immagine"] + "' alt='Copertina' class='copertina-anime'>" +
+                                    "<div class='testo-attivita'>" + descrizione + "</div>" +
+                                "</div>";
+
+                contenitore.appendChild(riga);
+            }
+
+            if (contenitore.children.length === 0) {
+                let messaggio = document.createElement("div");
+                messaggio.className = "nessuna-attivita";
+                messaggio.innerText = "Nessuna attività trovata.";
+                contenitore.appendChild(messaggio);
+            }
         }
-
-        if (contenitore.children.length === 0) {
-            let messaggio = document.createElement("div");
-            messaggio.className = "nessuna-attivita";
-            messaggio.innerText = "Nessuna attività trovata.";
-            contenitore.appendChild(messaggio);
-        }
-    }
-
-
-
 
         document.addEventListener("DOMContentLoaded", function() {
             caricaAttivita();
@@ -208,77 +226,29 @@
             datiRicevuti = JSON.parse(txt);
 
             if (datiRicevuti["status"] == "ERR") {
-                container.innerHTML = "<p style='color: red;'>" + datiRicevuti["msg"] + "</p>";
+                container.innerHTML = "<p style='color: red;'>Errore: " + datiRicevuti["msg"] + "</p>";
                 return;
             }
 
-            container.innerHTML = ""; // Svuota i risultati precedenti
-
-            // Aggiungi i risultati alla pagina
-            if (datiRicevuti["dati"].length === 0) {
+            // Genera i risultati
+            container.innerHTML = "";
+            if (datiRicevuti["data"].length === 0) {
                 container.innerHTML = "<p>Nessun risultato trovato.</p>";
-                return;
             }
 
-            for (let i = 0; i < datiRicevuti["dati"].length; i++) {
-                let elemento = datiRicevuti["dati"][i];
-                let htmlContent = "";
-
-                if (tipo === "fumetti") {
-                    htmlContent = 
-                        "<div class='issue'>" +
-                            "<img src='" + elemento.immagine + "' alt='" + elemento.titolo + "' />" +
-                            "<div class='info'>" +
-                                "<h2>" + elemento.titolo + " <small>(#" + elemento.numero + " - " + elemento.volume + ")</small></h2>" +
-                                "<p>" + elemento.descrizione + "</p>" +
-                                "<a href='" + elemento.link + "' target='_blank'>Vedi nel dettaglio</a>" +
-                            "</div>" +
-                        "</div>";
-                } else if (tipo === "anime") {
-                    htmlContent = 
-                        "<div class='anime'>" +
-                            "<img src='" + elemento.image + "' alt='" + elemento.titolo + "' />" +
-                            "<div class='info'>" +
-                                "<h2>" + elemento.titolo + "</h2>" +
-                                "<p><strong>Episodi:</strong> " + elemento.episodi + "</p>" +
-                                "<p>" + elemento.descrizione + "</p>" +
-                                "<a href='" + elemento.url + "' target='_blank'>Vedi nel dettaglio</a>" +
-                            "</div>" +
-                        "</div>";
-                } else if (tipo === "manga") {
-                    htmlContent = 
-                        "<div class='manga'>" +
-                            "<img src='" + elemento.image + "' alt='" + elemento.titolo + "' />" +
-                            "<div class='info'>" +
-                                "<h2>" + elemento.titolo + "</h2>" +
-                                "<p><strong>Capitoli:</strong> " + elemento.capitoli + "</p>" +
-                                "<p>" + elemento.descrizione + "</p>" +
-                                "<a href='" + elemento.url + "' target='_blank'>Vedi nel dettaglio</a>" +
-                            "</div>" +
-                        "</div>";
-                } else if (tipo === "videogame") {
-                    htmlContent = 
-                        "<div class='game'>" +
-                            "<img src='" + elemento.immagine + "' alt='" + elemento.titolo + "' />" +
-                            "<div class='info'>" +
-                                "<h2>" + elemento.titolo + "</h2>" +
-                                "<p>" + elemento.descrizione + "</p>" +
-                                "<a href='" + elemento.link + "' target='_blank'>Vedi nel dettaglio</a>" +
-                            "</div>" +
-                        "</div>";
-                }
-
-                container.innerHTML += htmlContent;
+            // Per ogni elemento, visualizza il risultato
+            for (let i = 0; i < datiRicevuti["data"].length; i++) {
+                let elemento = datiRicevuti["data"][i];
+                let card = document.createElement("div");
+                card.className = "card";
+                card.innerHTML = "<img src='" + elemento["immagine"] + "' alt='Immagine' class='immagine-card'>" +
+                                 "<div class='titolo-card'>" + elemento["titolo"] + "</div>";
+                container.appendChild(card);
             }
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById("query").addEventListener("input", function() {
-                // Avvia la ricerca ogni volta che l'utente digita
-                cerca();
-            });
-        });
+        document.getElementById("query").addEventListener("input", cerca);
     </script>
+
 </body>
 </html>
-

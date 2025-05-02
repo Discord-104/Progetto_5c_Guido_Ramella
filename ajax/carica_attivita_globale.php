@@ -61,6 +61,7 @@ if ($result_anime) {
         }
 
         $attivita[] = [
+            "tipo" => "anime",
             "username" => $riga["username"],
             "titolo" => $riga["titolo"],
             "episodi_visti" => $riga["episodi_visti"],
@@ -118,6 +119,7 @@ if ($result_manga) {
         }
 
         $attivita[] = [
+            "tipo" => "manga",
             "username" => $riga["username"],
             "titolo" => $riga["titolo"],
             "capitoli_letti" => $riga["capitoli_letti"],
@@ -129,8 +131,52 @@ if ($result_manga) {
     }
 }
 
+// === FUMETTI ===
+$api_key = "22c2e6718a7614c00a5fd89e2a6d8a4cfe8274ce";
+
+$sql_fumetti = "SELECT u.username, af.titolo, af.riferimento_api, af.numero_letti, af.status, af.anno_uscita, af.nome_volume, af.numero_fumetto
+                FROM attivita_fumetto af
+                INNER JOIN utenti u ON af.utente_id = u.id
+                ORDER BY af.data_ora DESC";
+$result_fumetti = $conn->query($sql_fumetti);
+
+if ($result_fumetti) {
+    while ($riga = $result_fumetti->fetch_assoc()) {
+        $id_api = (int)$riga["riferimento_api"];
+        $immagine = "";
+
+        if ($id_api > 0) {
+            $url = "https://comicvine.gamespot.com/api/issue/4000-" . $id_api . "/?api_key=" . $api_key . "&format=json";
+            $opts = [
+                "http" => [
+                    "header" => "User-Agent: ComicVine PHP Client\r\n"
+                ]
+            ];
+            $context = stream_context_create($opts);
+            $response = file_get_contents($url, false, $context);
+
+            if ($response !== false) {
+                $data = json_decode($response, true);
+                if (isset($data["results"]["image"]["original_url"])) {
+                    $immagine = $data["results"]["image"]["original_url"];
+                }
+            }
+        }
+
+        $attivita[] = [
+            "tipo" => "fumetto",
+            "username" => $riga["username"],
+            "titolo" => $riga["titolo"],
+            "pagine_lette" => $riga["numero_letti"],
+            "status" => $riga["status"],
+            "anno_uscita" => $riga["anno_uscita"],
+            "nome_volume" => $riga["nome_volume"],
+            "numero_fumetto" => $riga["numero_fumetto"],
+            "immagine" => $immagine
+        ];
+    }
+}
+
 // Output finale
 echo json_encode(["status" => "OK", "data" => $attivita]);
 die();
-
-?>

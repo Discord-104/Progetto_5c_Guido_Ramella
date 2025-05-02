@@ -145,8 +145,12 @@
 
         $numero_letti = 0;
         if (isset($_GET["pagine_lette"])) {
-            if (preg_match('/^\d+$/', $_GET["pagine_lette"])) {
+            if (preg_match('/^-?\d+$/', $_GET["pagine_lette"])) {
                 $numero_letti = intval($_GET["pagine_lette"]);
+                // Controllo aggiunto: se il numero è negativo, imposta a 0
+                if ($numero_letti < 0) {
+                    $numero_letti = 0;
+                }
             }
         }
 
@@ -189,10 +193,26 @@
             $note = trim($_GET["note"]);
         }
 
+        // Gestione migliorata del campo preferito
         $preferito = 0;
         if (isset($_GET["preferito"])) {
-            if (preg_match('/^\d+$/', $_GET["preferito"])) {
-                $preferito = intval($_GET["preferito"]);
+            $val_preferito = $_GET["preferito"];
+            if ($val_preferito == 1) {
+                $preferito = 1;
+            } else {
+                $preferito = 0;
+            }
+        }
+
+        // Nuovo campo riletture (rereading)
+        $riletture = 0;
+        if (isset($_GET["reread"])) {
+            if (preg_match('/^-?\d+$/', $_GET["reread"])) {
+                $riletture = intval($_GET["reread"]);
+                // Se il valore è negativo, imposta a 0
+                if ($riletture < 0) {
+                    $riletture = 0;
+                }
             }
         }
 
@@ -203,15 +223,15 @@
 
         if ($row = $result->fetch_assoc()) {
             $id = $row["id"];
-            $stmt_update = $conn->prepare("UPDATE attivita_fumetto SET titolo = ?, status = ?, punteggio = ?, numero_letti = ?, data_inizio = ?, data_fine = ?, note = ?, preferito = ?, nome_volume = ?, anno_uscita = ?, numero_fumetto = ?, data_ora = NOW() WHERE id = ?");
-            $stmt_update->bind_param("ssdisssssssi", $titolo, $status, $punteggio, $numero_letti, $start_date, $end_date, $note, $preferito, $volume, $anno_uscita, $numero_fumetto, $id);
+            $stmt_update = $conn->prepare("UPDATE attivita_fumetto SET titolo = ?, status = ?, punteggio = ?, numero_letti = ?, data_inizio = ?, data_fine = ?, note = ?, preferito = ?, nome_volume = ?, anno_uscita = ?, numero_fumetto = ?, riletture = ?, data_ora = NOW() WHERE id = ?");
+            $stmt_update->bind_param("ssdisssissiii", $titolo, $status, $punteggio, $numero_letti, $start_date, $end_date, $note, $preferito, $volume, $anno_uscita, $numero_fumetto, $riletture, $id);
             $stmt_update->execute();
 
             $ret["status"] = "OK";
             $ret["message"] = "Attività aggiornata con successo.";
         } else {
-            $stmt_insert = $conn->prepare("INSERT INTO attivita_fumetto (utente_id, titolo, riferimento_api, status, punteggio, numero_letti, data_inizio, data_fine, note, preferito, nome_volume, anno_uscita, numero_fumetto, data_ora) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-            $stmt_insert->bind_param("isssdiissssss", $utente_id, $titolo, $fumetto_id, $status, $punteggio, $numero_letti, $start_date, $end_date, $note, $preferito, $volume, $anno_uscita, $numero_fumetto);
+            $stmt_insert = $conn->prepare("INSERT INTO attivita_fumetto (utente_id, titolo, riferimento_api, status, punteggio, numero_letti, data_inizio, data_fine, note, preferito, nome_volume, anno_uscita, numero_fumetto, riletture, data_ora) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+            $stmt_insert->bind_param("isisdisssissii", $utente_id, $titolo, $fumetto_id, $status, $punteggio, $numero_letti, $start_date, $end_date, $note, $preferito, $volume, $anno_uscita, $numero_fumetto, $riletture);
             $stmt_insert->execute();
 
             $ret["status"] = "OK";
