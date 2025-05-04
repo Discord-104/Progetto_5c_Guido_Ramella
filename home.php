@@ -189,6 +189,12 @@
             let container = document.getElementById("risultati");
             container.innerHTML = "Caricamento...";
 
+            // Se la query è vuota, svuota i risultati e esci dalla funzione
+            if (query.trim() === "") {
+                container.innerHTML = "";
+                return;
+            }
+
             // Ottieni il tipo di ricerca dal menu a tendina
             let tipo = document.getElementById("tipoRicerca").value;
 
@@ -213,37 +219,86 @@
                 return;
             }
 
-            // Verifica che la risposta sia in formato JSON
+            // Ottieni il testo della risposta
             let txt = await response.text();
-            let datiRicevuti;
 
-            // Prova a fare il parse del JSON, ma senza try/catch
+            // Verifica che la risposta sia in formato JSON
             if (txt.startsWith('<br>')) {
                 container.innerHTML = "<p style='color: red;'>Errore: formato risposta non valido</p>";
                 return;
             }
 
-            datiRicevuti = JSON.parse(txt);
-
+            // Parse del JSON
+            let datiRicevuti = JSON.parse(txt);
+ 
             if (datiRicevuti["status"] == "ERR") {
                 container.innerHTML = "<p style='color: red;'>Errore: " + datiRicevuti["msg"] + "</p>";
                 return;
             }
-
-            // Genera i risultati
-            container.innerHTML = "";
-            if (datiRicevuti["data"].length === 0) {
-                container.innerHTML = "<p>Nessun risultato trovato.</p>";
+ 
+            container.innerHTML = ""; // Svuota i risultati precedenti
+ 
+            // Verifica che dati esista nel JSON
+            if (!datiRicevuti.hasOwnProperty("dati") || datiRicevuti["dati"] === null) {
+                container.innerHTML = "<p>Nessun risultato disponibile.</p>";
+                return;
             }
-
-            // Per ogni elemento, visualizza il risultato
-            for (let i = 0; i < datiRicevuti["data"].length; i++) {
-                let elemento = datiRicevuti["data"][i];
-                let card = document.createElement("div");
-                card.className = "card";
-                card.innerHTML = "<img src='" + elemento["immagine"] + "' alt='Immagine' class='immagine-card'>" +
-                                 "<div class='titolo-card'>" + elemento["titolo"] + "</div>";
-                container.appendChild(card);
+ 
+            // Aggiungi i risultati alla pagina
+            if (datiRicevuti["dati"].length === 0) {
+                container.innerHTML = "<p>Nessun risultato trovato.</p>";
+                return;
+            }
+ 
+            for (let i = 0; i < datiRicevuti["dati"].length; i++) {
+                let elemento = datiRicevuti["dati"][i];
+                let htmlContent = "";
+ 
+                if (tipo === "fumetti") {
+                    htmlContent = 
+                        "<div class='issue'>" +
+                            "<img src='" + elemento.immagine + "' alt='" + elemento.titolo + "' />" +
+                            "<div class='info'>" +
+                                "<h2>" + elemento.titolo + " <small>(#" + elemento.numero + " - " + elemento.volume + ")</small></h2>" +
+                                "<p>" + elemento.descrizione + "</p>" +
+                                "<a href='" + elemento.link + "' target='_blank'>Vedi nel dettaglio</a>" +
+                            "</div>" +
+                        "</div>";
+                } else if (tipo === "anime") {
+                    htmlContent = 
+                        "<div class='anime'>" +
+                            "<img src='" + elemento.image + "' alt='" + elemento.titolo + "' />" +
+                            "<div class='info'>" +
+                                "<h2>" + elemento.titolo + "</h2>" +
+                                "<p><strong>Episodi:</strong> " + elemento.episodi + "</p>" +
+                                "<p>" + elemento.descrizione + "</p>" +
+                                "<a href='" + elemento.url + "' target='_blank'>Vedi nel dettaglio</a>" +
+                            "</div>" +
+                        "</div>";
+                } else if (tipo === "manga") {
+                    htmlContent = 
+                        "<div class='manga'>" +
+                            "<img src='" + elemento.image + "' alt='" + elemento.titolo + "' />" +
+                            "<div class='info'>" +
+                                "<h2>" + elemento.titolo + "</h2>" +
+                                "<p><strong>Capitoli:</strong> " + elemento.capitoli + "</p>" +
+                                "<p>" + elemento.descrizione + "</p>" +
+                                "<a href='" + elemento.url + "' target='_blank'>Vedi nel dettaglio</a>" +
+                            "</div>" +
+                        "</div>";
+                } else if (tipo === "videogame") {
+                    htmlContent = 
+                        "<div class='game'>" +
+                            "<img src='" + elemento.immagine + "' alt='" + elemento.titolo + "' />" +
+                            "<div class='info'>" +
+                                "<h2>" + elemento.titolo + "</h2>" +
+                                "<p>" + elemento.descrizione + "</p>" +
+                                "<a href='" + elemento.link + "' target='_blank'>Vedi nel dettaglio</a>" +
+                            "</div>" +
+                        "</div>";
+                }
+ 
+                container.innerHTML += htmlContent;
             }
         }
 

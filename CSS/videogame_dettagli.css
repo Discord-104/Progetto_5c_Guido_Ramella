@@ -1,100 +1,114 @@
-/* Resetting some default styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+/* Incorporare direttamente il CSS qui invece di caricarlo esternamente */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    line-height: 1.6;
+    margin: 0;
     padding: 20px;
+    background-color: #f5f5f5;
 }
 
 .container {
-    max-width: 900px;
-    margin: auto;
-    background-color: #fff;
+    max-width: 1000px;
+    margin: 0 auto;
+    background-color: white;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 h1 {
-    font-size: 2rem;
-    margin-bottom: 20px;
     color: #333;
     text-align: center;
+    border-bottom: 2px solid #28a745;
+    padding-bottom: 10px;
 }
 
 .info {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     padding: 10px;
     background-color: #f9f9f9;
     border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .etichetta {
     font-weight: bold;
-    color: #555;
+    color: #28a745;
 }
 
 .immagine {
-    max-width: 100%;
-    border-radius: 8px;
-    margin-top: 10px;
+    max-width: 300px;
+    max-height: 300px;
+    margin: 10px 0;
+    border-radius: 5px;
 }
 
 ul {
     padding-left: 20px;
-    list-style-type: disc;
-}
-
-ul li {
-    margin-bottom: 5px;
 }
 
 .errore {
     color: red;
     font-weight: bold;
-    text-align: center;
-    font-size: 1.2rem;
 }
 
 .bottone-dettagli {
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 16px;
     background-color: #007bff;
     color: white;
+    padding: 10px 15px;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.2s ease;
+    margin-top: 15px;
+    display: block;
 }
 
 .bottone-dettagli:hover {
-    background-color: #0056b3;
+    background-color: #0069d9;
 }
 
-@media (max-width: 768px) {
-    .container {
-        padding: 15px;
-    }
-
-    h1 {
-        font-size: 1.6rem;
-    }
-
-    .immagine {
-        max-width: 100%;
-    }
-
-    ul {
-        padding-left: 15px;
-    }
+/* Stile per il pulsante "Open list editor" */
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 15px 0;
+    font-size: 16px;
+    transition: background-color 0.3s;
 }
 
+button:hover {
+    background-color: #0069d9;
+}
+
+/* Editor CSS */
+.editor {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #ccc;
+    display: none;
+}
+
+.editor input, .editor select, .editor textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.editor button {
+    background-color: #28a745;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.editor button:hover {
+    background-color: #218838;
+}

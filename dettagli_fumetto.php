@@ -100,12 +100,6 @@
             preferito = 1;
         }
         
-        // Get title from the DOM - now we have the contenuto div with h2
-        let titoloElement = document.querySelector('#contenuto h2');
-        let titolo = "";
-        if (titoloElement) {
-            titolo = titoloElement.innerText;
-        }
         let id = new URLSearchParams(window.location.search).get("id");
 
         // Fix URL construction to use proper query parameters
