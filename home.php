@@ -63,6 +63,7 @@
     <a class="logout-link" href="logout.php">Esci</a>
 
     <script>
+        // Funzione per caricare le attività
         async function caricaAttivita() {
             let contenitore = document.getElementById("sezione_attivita");
             contenitore.innerHTML = "";
@@ -157,20 +158,40 @@
                     }
 
                     let anno = attività[i]["anno_uscita"];
-                    let volume = attività[i]["numero_volume"];
+                    let nome_volume = attività[i]["nome_volume"];
+                    let numero_fumetto = attività[i]["numero_fumetto"];
 
                     descrizione = "<strong>" + username + "</strong> " + stato + " <strong>" +
                                 titolo + "</strong><br>Pagine lette: " + pagine +
-                                "<br>Anno: " + anno + " - Volume: " + volume;
+                                "<br>Anno: " + anno + " - Volume: " + nome_volume + " - Numero fumetto: " + numero_fumetto;
+                }
+                // === VIDEOGIOCHI ===
+                else if ("ore_giocate" in attività[i]) {
+                    let ore = attività[i]["ore_giocate"];
+
+                    if (attività[i]["status"] === "Planning") {
+                        stato = "Sta pianificando di giocare";
+                    } else if (attività[i]["status"] === "Playing") {
+                        stato = "Sta giocando";
+                    } else if (attività[i]["status"] === "Complete") {
+                        stato = "Ha finito di giocare";
+                    } else if (attività[i]["status"] === "Paused") {
+                        stato = "Messo in pausa";
+                    } else if (attività[i]["status"] === "Dropped") {
+                        stato = "Ha smesso di giocare";
+                    }
+
+                    let data_uscita = attività[i]["data_uscita"];
+
+                    descrizione = "<strong>" + username + "</strong> " + stato + " <strong>" +
+                                titolo + "</strong><br>Ore giocate: " + ore +
+                                "<br>Data uscita: " + data_uscita;
                 }
 
-                riga.innerHTML = "<div class='attivita-card'>" +
-                                    "<img src='" + attività[i]["immagine"] + "' alt='Copertina' class='copertina-anime'>" +
-                                    "<div class='testo-attivita'>" + descrizione + "</div>" +
-                                "</div>";
-
+                riga.innerHTML = "<img src='" + attività[i]["immagine"] + "' alt='" + titolo + "' class='attivita-img'><p>" + descrizione + "</p>";
                 contenitore.appendChild(riga);
             }
+
 
             if (contenitore.children.length === 0) {
                 let messaggio = document.createElement("div");

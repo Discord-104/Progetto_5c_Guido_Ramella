@@ -157,8 +157,10 @@ if ($result_fumetti) {
 
             if ($response !== false) {
                 $data = json_decode($response, true);
-                if (isset($data["results"]["image"]["original_url"])) {
-                    $immagine = $data["results"]["image"]["original_url"];
+                if (isset($data["results"]["image"]["small_url"])) {
+                    $immagine = $data["results"]["image"]["small_url"];
+                } elseif (isset($data["results"]["image"]["original_url"])) {
+                    $immagine = $data["results"]["image"]["original_url"]; 
                 }
             }
         }
@@ -172,6 +174,52 @@ if ($result_fumetti) {
             "anno_uscita" => $riga["anno_uscita"],
             "nome_volume" => $riga["nome_volume"],
             "numero_fumetto" => $riga["numero_fumetto"],
+            "immagine" => $immagine
+        ];
+    }
+}
+
+// === VIDEOGIOCHI ===
+$api_key_videogiochi = "bb709d6b2114c61e3f0c9999834b43918d1a2427";
+
+$sql_videogiochi = "SELECT u.username, av.titolo, av.guid, av.ore_giocate, av.status, av.data_uscita
+                    FROM attivita_videogioco av
+                    INNER JOIN utenti u ON av.utente_id = u.id
+                    ORDER BY av.data_ora DESC";
+$result_videogiochi = $conn->query($sql_videogiochi);
+
+if ($result_videogiochi) {
+    while ($riga = $result_videogiochi->fetch_assoc()) {
+        $guid = $riga["guid"];
+        $immagine = "";
+
+        if (!empty($guid)) {
+            $url = "https://www.giantbomb.com/api/game/" . $guid . "/?api_key=" . $api_key_videogiochi . "&format=json";
+            $opts = [
+                "http" => [
+                    "header" => "User-Agent: GiantBomb PHP Client\r\n"
+                ]
+            ];
+            $context = stream_context_create($opts);
+            $response = file_get_contents($url, false, $context);
+
+            if ($response !== false) {
+                $data = json_decode($response, true);
+                if (isset($data["results"]["image"]["small_url"])) {
+                    $immagine = $data["results"]["image"]["small_url"];
+                } elseif (isset($data["results"]["image"]["original_url"])) {
+                    $immagine = $data["results"]["image"]["original_url"]; 
+                }
+            }
+        }
+
+        $attivita[] = [
+            "tipo" => "videogioco",
+            "username" => $riga["username"],
+            "titolo" => $riga["titolo"],
+            "ore_giocate" => $riga["ore_giocate"],
+            "status" => $riga["status"],
+            "data_uscita" => $riga["data_uscita"],
             "immagine" => $immagine
         ];
     }

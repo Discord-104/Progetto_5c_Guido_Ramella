@@ -53,8 +53,10 @@ while ($riga = $result->fetch_assoc()) {
 
         if ($response !== false) {
             $data = json_decode($response, true);
-            if (isset($data["results"]["image"]["original_url"])) {
-                $immagine = $data["results"]["image"]["original_url"];
+            if (isset($data["results"]["image"]["small_url"])) {
+                $immagine = $data["results"]["image"]["small_url"];
+            } elseif (isset($data["results"]["image"]["original_url"])) {
+                $immagine = $data["results"]["image"]["original_url"]; 
             }
         }
     }
