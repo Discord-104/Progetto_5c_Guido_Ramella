@@ -1,17 +1,16 @@
 <?php
-session_start();
-if (!isset($_SESSION["utente_id"])) {
-    header("Location: login.php");
-    exit;
-}
+    session_start();
+    if (!isset($_SESSION["utente_id"])) {
+        header("Location: login.php");
+        exit;
+    }
 
-if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
-    echo "<h2>Errore: parametro ID non valido.</h2>";
-    exit;
-}
+    if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
+        echo "<h2>Errore: parametro ID non valido.</h2>";
+        exit;
+    }
 
-$id = (int) $_GET["id"];
-$utente_id = (int) $_SESSION["utente_id"];
+    $id = (int) $_GET["id"];
 ?>
 
 <!DOCTYPE html>
@@ -128,7 +127,6 @@ $utente_id = (int) $_SESSION["utente_id"];
         }
 
         let url = "ajax/attivita_manga.php?";
-        url += "utente_id=" + <?= $utente_id ?>;
         url += "&manga_id=" + <?= $id ?>;
         url += "&status=" + status;
         url += "&punteggio=" + punteggio;

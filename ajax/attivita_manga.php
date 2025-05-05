@@ -4,6 +4,17 @@
 
     $ret = [];
 
+    // Controlla se l'utente è loggato
+    if (!isset($_SESSION["utente_id"])) {
+        $ret["status"] = "ERROR";
+        $ret["message"] = "Utente non autenticato.";
+        echo json_encode($ret);
+        die();
+    }
+
+    // Usa l'ID utente dalla sessione
+    $utente_id = $_SESSION["utente_id"];
+
     function valida_data($data) {
         $date_format = 'Y-m-d';
         $d = DateTime::createFromFormat($date_format, $data);
@@ -96,14 +107,13 @@
 
     // --- Inizio codice principale ---
 
-    if (isset($_GET["utente_id"]) && isset($_GET["manga_id"])) {
+    if (isset($_GET["manga_id"])) {
 
-        $utente_id = $_GET["utente_id"];
         $manga_id = $_GET["manga_id"];
 
-        if (!preg_match('/^\d+$/', $utente_id) || !preg_match('/^\d+$/', $manga_id)) {
+        if (!preg_match('/^\d+$/', $manga_id)) {
             $ret["status"] = "ERROR";
-            $ret["message"] = "ID utente o ID manga non valido.";
+            $ret["message"] = "ID manga non valido.";
             echo json_encode($ret);
             die();
         }
@@ -311,7 +321,7 @@
         echo json_encode($ret);
     } else {
         $ret["status"] = "ERROR";
-        $ret["message"] = "ID utente o ID manga non forniti.";
+        $ret["message"] = "ID manga non forniti.";
         echo json_encode($ret);
     }
 ?>

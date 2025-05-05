@@ -4,6 +4,17 @@
 
     $ret = [];
 
+    // Controlla se l'utente è loggato
+    if (!isset($_SESSION["utente_id"])) {
+        $ret["status"] = "ERROR";
+        $ret["message"] = "Utente non autenticato.";
+        echo json_encode($ret);
+        die();
+    }
+
+    // Usa l'ID utente dalla sessione
+    $utente_id = $_SESSION["utente_id"];
+
     function valida_data($data) {
         $d = DateTime::createFromFormat("Y-m-d", $data);
         return $d && $d->format("Y-m-d") === $data;
@@ -80,13 +91,12 @@
         return $risultato;
     }
 
-    if (isset($_GET["utente_id"]) && isset($_GET["fumetto_id"])) {
-        $utente_id = $_GET["utente_id"];
+    if (isset($_GET["fumetto_id"])) {
         $fumetto_id = $_GET["fumetto_id"];
 
-        if (!preg_match('/^\d+$/', $utente_id) || !preg_match('/^\d+$/', $fumetto_id)) {
+        if (!preg_match('/^\d+$/', $fumetto_id)) {
             $ret["status"] = "ERROR";
-            $ret["message"] = "ID utente o fumetto non valido.";
+            $ret["message"] = "ID fumetto non valido.";
             echo json_encode($ret);
             die();
         }
@@ -96,10 +106,10 @@
 
         $info = get_info_fumetto_comicvine($fumetto_id);
 
-        $titolo = null;
-        $volume = null;
-        $anno_uscita = null;
-        $numero_fumetto = null;  // Aggiungi la variabile per il numero del fumetto
+        $titolo = "Titolo non disponibile";
+        $volume = "Volume non disponibile";
+        $anno_uscita = "Anno non disponibile";
+        $numero_fumetto = 0;  // Aggiungi la variabile per il numero del fumetto
 
         if ($info["status"] === "OK") {
             $dato = $info["dato"];

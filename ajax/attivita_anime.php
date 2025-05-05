@@ -1,13 +1,21 @@
 <?php
-    //TODO: controllo ep massimi quando si mette complete e passare il titolo con l'endpoint di anilist con controllo id
-    //Binding utente_id
-
     require_once("../classi/db.php");
     session_start();
 
     $ret = [];
 
-    // Funzione per ottenere anno di uscita e formato da Anilist
+    // Controlla se l'utente è loggato
+    if (!isset($_SESSION["utente_id"])) {
+        $ret["status"] = "ERROR";
+        $ret["message"] = "Utente non autenticato.";
+        echo json_encode($ret);
+        die();
+    }
+
+    // Usa l'ID utente dalla sessione
+    $utente_id = $_SESSION["utente_id"];
+
+    // Funzione per ottenere anno di uscita, formato, episodi e titolo in romanji da Anilist
     function get_anno_formato_from_anilist($anime_id) {
         $ret = [];
 
@@ -26,6 +34,9 @@
                     }
                     format
                     episodes
+                    title {
+                        romaji
+                    }
                 }
             }
         ';
@@ -63,11 +74,12 @@
             $ret["dato"] = [
                 "anno_uscita" => $data["data"]["Media"]["startDate"]["year"],
                 "formato" => $data["data"]["Media"]["format"],
-                "ep_max" => $data["data"]["Media"]["episodes"]
+                "ep_max" => $data["data"]["Media"]["episodes"],
+                "titolo_romanji" => $data["data"]["Media"]["title"]["romaji"]
             ];
         } else {
             $ret["status"] = "ERR";
-            $ret["msg"] = "Informazioni su anno, formato e episodi non trovate su Anilist.";
+            $ret["msg"] = "Informazioni su anno, formato, episodi o titolo non trovate su Anilist.";
             $ret["dato"] = null;
         }
 
@@ -82,14 +94,12 @@
 
     // --- Inizio codice principale ---
 
-    if (isset($_GET["utente_id"]) && isset($_GET["anime_id"])) {
-
-        $utente_id = $_GET["utente_id"];
+    if (isset($_GET["anime_id"])) {
         $anime_id = $_GET["anime_id"];
 
-        if (!preg_match('/^\d+$/', $utente_id) || !preg_match('/^\d+$/', $anime_id)) {
+        if (!preg_match('/^\d+$/', $anime_id)) {
             $ret["status"] = "ERROR";
-            $ret["message"] = "ID utente o ID anime non valido.";
+            $ret["message"] = "ID anime non valido.";
             echo json_encode($ret);
             die();
         }
@@ -134,15 +144,17 @@
             }
         }
 
-        // Recuperiamo anno di uscita, formato e episodi da Anilist
+        // Recuperiamo anno di uscita, formato, episodi e titolo in romanji da Anilist
         $response = get_anno_formato_from_anilist($anime_id);
         $anno_uscita = null;
         $formato = null;
         $ep_max = 0;
+        $titolo_romanji = null;
         if ($response["status"] === "OK") {
             $anno_uscita = $response["dato"]["anno_uscita"];
             $formato = $response["dato"]["formato"];
             $ep_max = $response["dato"]["ep_max"];
+            $titolo_romanji = $response["dato"]["titolo_romanji"];
         }
 
         // Aggiungi controllo per episodi visti
@@ -233,7 +245,7 @@
                 $stmt_update = $conn->prepare("UPDATE attivita_anime 
                     SET status = ?, punteggio = ?, episodi_visti = ?, data_inizio = ?, data_fine = ?, note = ?, rewatch = ?, preferito = ?, titolo = ?, anno_uscita = ?, formato = ?, data_ora = NOW() 
                     WHERE id = ?");
-                $stmt_update->bind_param("sdisssissssi", $status, $punteggio, $episodi_visti, $start_date, $end_date, $note, $rewatch, $preferito, $titolo, $anno_uscita, $formato, $attivita_id);
+                $stmt_update->bind_param("sdisssissssi", $status, $punteggio, $episodi_visti, $start_date, $end_date, $note, $rewatch, $preferito, $titolo_romanji, $anno_uscita, $formato, $attivita_id);
                 $stmt_update->execute();
 
                 $ret["status"] = "OK";
@@ -242,7 +254,7 @@
         } else {
             $stmt_insert = $conn->prepare("INSERT INTO attivita_anime (utente_id, riferimento_api, status, punteggio, episodi_visti, data_inizio, data_fine, note, rewatch, preferito, titolo, anno_uscita, formato) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt_insert->bind_param("iisdissssisss", $utente_id, $anime_id, $status, $punteggio, $episodi_visti, $start_date, $end_date, $note, $rewatch, $preferito, $titolo, $anno_uscita, $formato);
+            $stmt_insert->bind_param("iisdissssisss", $utente_id, $anime_id, $status, $punteggio, $episodi_visti, $start_date, $end_date, $note, $rewatch, $preferito, $titolo_romanji, $anno_uscita, $formato);
             $stmt_insert->execute();
 
             $ret["status"] = "OK";
@@ -252,8 +264,7 @@
         echo json_encode($ret);
     } else {
         $ret["status"] = "ERROR";
-        $ret["message"] = "ID utente o ID anime non forniti.";
+        $ret["message"] = "ID anime non forniti.";
         echo json_encode($ret);
     }
-
 ?>

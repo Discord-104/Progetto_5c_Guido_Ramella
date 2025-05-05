@@ -4,8 +4,6 @@
         header("Location: login.php");
         exit;
     }
-
-    $utente_id = $_SESSION["utente_id"];
 ?>
 
 <!DOCTYPE html>
@@ -13,6 +11,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Dettagli Videogioco</title>
+    <link rel="stylesheet" href="CSS/videogame_dettagli.css">
 </head>
 <body>
 
@@ -84,9 +83,7 @@
         let params = new URLSearchParams(window.location.search);
         let guid = params.get("guid");
 
-        let url = "ajax/attivita_videogame.php";
-        url += "?utente_id=" + <?= $utente_id ?>;
-        url += "&videogioco_guid=" + guid;
+        let url = "ajax/attivita_videogame.php?videogioco_guid=" + (guid);
         url += "&status=" + status;
         url += "&punteggio=" + punteggio;
         url += "&ore_giocate=" + ore_giocate;

@@ -4,19 +4,29 @@
 
     $ret = [];
 
+    // Controlla se l'utente è loggato
+    if (!isset($_SESSION["utente_id"])) {
+        $ret["status"] = "ERROR";
+        $ret["message"] = "Utente non autenticato.";
+        echo json_encode($ret);
+        die();
+    }
+
+    // Usa l'ID utente dalla sessione
+    $utente_id = $_SESSION["utente_id"];
+
     function valida_data($data) {
         $d = DateTime::createFromFormat("Y-m-d", $data);
         return $d && $d->format("Y-m-d") === $data;
     }
 
-    if (isset($_GET["utente_id"]) && isset($_GET["videogioco_guid"])) {
-        $utente_id = $_GET["utente_id"];
+    if (isset($_GET["videogioco_guid"])) {
         $guid = $_GET["videogioco_guid"];
 
         // Validazioni iniziali
-        if (!preg_match('/^\d+$/', $utente_id) || !preg_match('/^[a-zA-Z0-9-]+$/', $guid)) {
+        if (!preg_match('/^[a-zA-Z0-9-]+$/', $guid)) {
             $ret["status"] = "ERROR";
-            $ret["message"] = "ID utente o GUID non valido.";
+            $ret["message"] = "GUID non valido.";
             echo json_encode($ret);
             exit;
         }
@@ -52,9 +62,13 @@
             exit;
         }
 
-        $titolo = $data["results"]["name"];
+        $titolo = "Titolo non disponibile";
 
-        $data_uscita = null;
+        if(isset($data["results"]["name"])) {
+            $titolo = $data["results"]["name"];
+        } 
+
+        $data_uscita = "?";
         if (isset($data["results"]["original_release_date"]) && valida_data(substr($data["results"]["original_release_date"], 0, 10))) {
             $data_uscita = substr($data["results"]["original_release_date"], 0, 10);
         }

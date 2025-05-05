@@ -1,11 +1,10 @@
 <?php
     session_start();
+
     if (!isset($_SESSION["utente_id"])) {
         header("Location: login.php");
         exit;
     }
-
-    $utente_id = $_SESSION["utente_id"];
 ?>
 
 <!DOCTYPE html>
@@ -103,9 +102,7 @@
         let id = new URLSearchParams(window.location.search).get("id");
 
         // Fix URL construction to use proper query parameters
-        let url = "ajax/attivita_fumetto.php";
-        url += "?utente_id=" + <?= $utente_id ?>;
-        url += "&fumetto_id=" + id;
+        let url = "ajax/attivita_fumetto.php?fumetto_id=" + id;
         url += "&status=" + status;
         url += "&punteggio=" + punteggio;
         url += "&pagine_lette=" + pagine_lette;
