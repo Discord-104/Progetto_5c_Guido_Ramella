@@ -108,3 +108,12 @@ body {
 .search-results .info p {
     margin: 5px 0;
 }
+
+.attivita-img,
+.issue img,
+.game img {
+    width: 230px;
+    height: 325px;
+    object-fit: cover;
+    border-radius: 5px;
+}

@@ -51,12 +51,16 @@
         return null;
     }
 
-    function creaListaOggetti(titolo, array) {
+    function creaListaOggetti(titolo, array, tipo = "") {
         let html = "<div class='info'><span class='etichetta'>" + titolo + ":</span><br>";
         if (array.length > 0) {
             html += "<ul>";
             for (let i = 0; i < array.length; i++) {
-                html += "<li><img src='" + array[i].immagine + "' alt='" + array[i].nome + "' style='height:40px; vertical-align:middle; margin-right:10px;'> " + array[i].nome + "</li>";
+                let nomeCliccabile = array[i].nome;
+                if (tipo === "similar") {
+                    nomeCliccabile = "<a href='dettagli_videogame.php?guid=" + array[i].guid + "'>" + array[i].nome + "</a>";
+                }
+                html += "<li><img src='" + array[i].immagine + "' alt='" + array[i].nome + "' style='height:40px; vertical-align:middle; margin-right:10px;'> " + nomeCliccabile + "</li>";
             }
             html += "</ul>";
         } else {
@@ -98,7 +102,7 @@
         html += "<div class='info'><span class='etichetta'>Descrizione:</span> " + gioco.descrizione + "</div>";
 
         html += creaListaOggetti("Personaggi", personaggi);
-        html += creaListaOggetti("Giochi simili", simili);
+        html += creaListaOggetti("Giochi simili", simili, "similar");
 
         document.getElementById("dettagli").innerHTML = html;
     });

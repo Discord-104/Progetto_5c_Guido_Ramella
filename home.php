@@ -188,7 +188,7 @@
                                 "<br>Data uscita: " + data_uscita;
                 }
 
-                riga.innerHTML = "<img src='" + attività[i]["immagine"] + "' alt='" + titolo + "' class='attivita-img'><p>" + descrizione + "</p>";
+                riga.innerHTML = "<img src='" + attività[i]["immagine"] + "' alt='" + titolo + "' style='width:230px;height:325px;object-fit:cover;'><p>" + descrizione + "</p>";
                 contenitore.appendChild(riga);
             }
 

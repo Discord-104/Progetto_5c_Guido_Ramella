@@ -15,7 +15,6 @@
     <link rel="stylesheet" href="CSS/fumetto_dettagli.css">
 </head>
 <body>
-
 <div class="container">
     <h1>Dettagli del Fumetto</h1>
     <div id="dettagli">Caricamento in corso...</div>
@@ -59,6 +58,8 @@
 </div>
 
 <script>
+    const paginaDettaglio = "dettagli_fumetti.php";
+    
     function toggleEditor() {
         let editor = document.getElementById('editor');
         if (editor.style.display === 'none' || editor.style.display === '') {
@@ -122,6 +123,37 @@
             alert("Errore nel salvataggio dell'attività: " + data.message);
         }
     }
+    
+    // Funzione per generare la sezione relazioni
+    function generaSezioneRelazioni(titolo, items) {
+        if (!items || items.length === 0) {
+            return "";
+        }
+        
+        let html = '<div class="section-title">' + titolo + '</div>';
+        html += '<div class="grid-container">';
+        
+        for (let item of items) {
+            html += '<div class="relationship-item">';
+            if (item.immagine && item.immagine !== "") {
+                html += '<img src="' + item.immagine + '" alt="' + item.nome + '" >';
+            }
+            // Se c'è un ID nel link, creiamo un link, altrimenti solo il nome
+            if (item.id) {
+                html += '<a href="' + paginaDettaglio + '?id=' + item.id + '" class="relationship-link">' + item.nome + '</a>';
+            } else {
+                html += '<span>' + item.nome + '</span>';
+            }
+            // Se c'è un ruolo (per gli autori), lo mostriamo
+            if (item.ruolo) {
+                html += ' <small>(' + item.ruolo + ')</small>';
+            }
+            html += '</div>';
+        }
+        
+        html += '</div>';
+        return html;
+    }
 
     document.addEventListener("DOMContentLoaded", async function () {
         let params = new URLSearchParams(window.location.search);
@@ -149,6 +181,7 @@
             html += "<div class='info'><span class='etichetta'>Descrizione:</span> " + fumetto.descrizione + "</div>";
             html += "<div class='info'><span class='etichetta'>Data di pubblicazione:</span> " + fumetto.data_pubblicazione + "</div>";
 
+            // Aggiunta sezione Alias
             html += "<div class='info'><span class='etichetta'>Alias:</span> ";
             if (fumetto.aliases && fumetto.aliases.trim() !== "") {
                 let aliasesArray = fumetto.aliases.split("\n");
@@ -161,22 +194,37 @@
                 html += "Nessuno";
             }
             html += "</div>";
-
-            html += "<div class='info'><span class='etichetta'>Personaggi:</span> ";
-            if (fumetto.personaggi && fumetto.personaggi.length > 0) {
-                html += "<ul>";
-                for (let p of fumetto.personaggi) {
-                    html += "<li>";
-                    if (p.immagine !== "") {
-                        html += "<img src='" + p.immagine + "' alt='" + p.nome + "' style='height:40px; vertical-align:middle; margin-right:10px;'>";
-                    }
-                    html += p.nome + "</li>";
-                }
-                html += "</ul>";
-            } else {
-                html += "Nessuno";
+            
+            // Aggiunta sezione Autori
+            if (fumetto.autori && fumetto.autori.length > 0) {
+                html += generaSezioneRelazioni("Autori", fumetto.autori);
             }
-            html += "</div>";
+
+            // Aggiunta sezione Personaggi
+            if (fumetto.personaggi && fumetto.personaggi.length > 0) {
+                html += generaSezioneRelazioni("Personaggi", fumetto.personaggi);
+            }
+            
+            // Aggiunta sezione Teams
+            if (fumetto.teams && fumetto.teams.length > 0) {
+                html += generaSezioneRelazioni("Teams", fumetto.teams);
+            }
+            
+            // Aggiunta sezione Locations
+            if (fumetto.locations && fumetto.locations.length > 0) {
+                html += generaSezioneRelazioni("Locations", fumetto.locations);
+            }
+            
+            // Aggiunta sezione Concepts
+            if (fumetto.concepts && fumetto.concepts.length > 0) {
+                html += generaSezioneRelazioni("Concepts", fumetto.concepts);
+            }
+            
+            // Aggiunta sezione Objects
+            if (fumetto.objects && fumetto.objects.length > 0) {
+                html += generaSezioneRelazioni("Objects", fumetto.objects);
+            }
+            
             html += "</div>"; // Close the contenuto div
 
             document.getElementById("dettagli").innerHTML = html;

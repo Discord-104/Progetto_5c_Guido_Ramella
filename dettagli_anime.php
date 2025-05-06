@@ -79,8 +79,15 @@
             html += '<h3>Relazioni</h3>';
             html += '<div class="griglia">';
             for (let r of anime.relazioni) {
+                let paginaDettaglio = "";
+                if (r.tipo === "MANGA") {
+                    paginaDettaglio = "dettagli_manga.php";
+                } else {
+                    paginaDettaglio = "dettagli_anime.php";
+                }
+
                 html += '<div class="relazione">';
-                html += '<a href="dettagli_anime.php?id=' + r.id + '">';
+                html += '<a href="' + paginaDettaglio + '?id=' + r.id + '">';
                 if (r.immagine) {
                     html += '<img src="' + r.immagine + '" alt="' + r.titolo + '" style="max-width: 100px; margin-right: 10px;">';
                 }
@@ -89,7 +96,6 @@
                 html += '</div>';
             }
             html += '</div>';
-
             html += '<h3>Raccomandazioni</h3>';
             html += '<div class="griglia">';
             for (let rec of anime.raccomandazioni) {

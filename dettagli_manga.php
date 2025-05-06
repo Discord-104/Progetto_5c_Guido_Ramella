@@ -72,8 +72,15 @@
             html += '<h3>Relazioni</h3>';
             html += '<div class="griglia">';
             for (let r of manga.relazioni) {
+                let paginaRelazione = "";
+                if (r.tipo === "MANGA") {
+                    paginaRelazione = "dettagli_manga.php";
+                } else {
+                    paginaRelazione = "dettagli_anime.php";
+                }
+
                 html += '<div class="relazione">';
-                html += '<a href="dettagli_manga.php?id=' + r.id + '">';
+                html += '<a href="' + paginaRelazione + '?id=' + r.id + '">';
                 if (r.immagine) {
                     html += '<img src="' + r.immagine + '" alt="' + r.titolo + '" style="max-width: 100px; margin-right: 10px;">';
                 }
