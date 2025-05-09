@@ -21,16 +21,34 @@
         die();
     }
 
-    // Query per ottenere le attività videogioco
-    $sql = "SELECT u.username, av.guid, av.titolo, av.data_uscita, av.status, av.ore_giocate
-            FROM attivita_videogioco av
-            INNER JOIN utenti u ON av.utente_id = u.id
-            ORDER BY av.data_ora DESC";
+    $utente_id = intval($_SESSION["utente_id"]);
 
-    $result = $conn->query($sql);
+    // Query per ottenere le attività videogioco più recenti per l'utente
+    $sql = "
+        SELECT av.guid, av.titolo, av.data_uscita, av.status, av.punteggio, av.ore_giocate, 
+            av.start_date, av.end_date, av.note, av.rigiocato, av.preferito, av.data_ora
+        FROM attivita_videogioco av
+        INNER JOIN (
+            SELECT guid, MAX(data_ora) as max_data
+            FROM attivita_videogioco
+            WHERE utente_id = ?
+            GROUP BY guid
+        ) latest ON av.guid = latest.guid AND av.data_ora = latest.max_data
+        WHERE av.utente_id = ?
+        ORDER BY av.data_ora DESC
+    ";
+
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        echo json_encode(["status" => "ERR", "msg" => "Errore nella preparazione della query."]);
+        die();
+    }
+    $stmt->bind_param("ii", $utente_id, $utente_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if (!$result) {
-        echo json_encode(["status" => "ERR", "msg" => "Errore nella query."]);
+        echo json_encode(["status" => "ERR", "msg" => "Errore nell'esecuzione della query."]);
         die();
     }
 
@@ -56,18 +74,24 @@
                 if (isset($data["results"]["image"]["small_url"])) {
                     $immagine = $data["results"]["image"]["small_url"];
                 } elseif (isset($data["results"]["image"]["original_url"])) {
-                    $immagine = $data["results"]["image"]["original_url"]; 
+                    $immagine = $data["results"]["image"]["original_url"];
                 }
             }
         }
 
         $attivita[] = [
-            "tipo" => "videogioco",
-            "username" => $riga["username"],
+            "guid" => $riga["guid"],
             "titolo" => $riga["titolo"],
-            "status" => $riga["status"],
             "data_uscita" => $riga["data_uscita"],
-            "ore_giocate" => $riga["ore_giocate"],
+            "status" => $riga["status"],
+            "punteggio" => (float)$riga["punteggio"],
+            "ore_giocate" => (int)$riga["ore_giocate"],
+            "start_date" => $riga["start_date"],
+            "end_date" => $riga["end_date"],
+            "note" => $riga["note"],
+            "rigiocato" => (int)$riga["rigiocato"],
+            "preferito" => (int)$riga["preferito"],
+            "data_ora" => $riga["data_ora"],
             "immagine" => $immagine
         ];
     }
