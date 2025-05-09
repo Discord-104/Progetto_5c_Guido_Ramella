@@ -107,12 +107,6 @@
         $utente_id = intval($utente_id);
         $anime_id = intval($anime_id);
 
-        // Titolo
-        $titolo = "";
-        if (isset($_GET["titolo"])) {
-            $titolo = trim($_GET["titolo"]);
-        }
-
         // Status
         $status = "Planning";
         if (isset($_GET["status"])) {
@@ -219,14 +213,20 @@
         if (isset($_GET["rewatch"])) {
             if (preg_match('/^\d+$/', $_GET["rewatch"])) {
                 $rewatch = intval($_GET["rewatch"]);
+                if ($rewatch < 0) {
+                    $rewatch = 0;
+                }
             }
         }
 
         // Preferito
         $preferito = 0;
         if (isset($_GET["preferito"])) {
-            if (preg_match('/^\d+$/', $_GET["preferito"])) {
-                $preferito = intval($_GET["preferito"]);
+            $val_preferito = $_GET["preferito"];
+            if ($val_preferito == 1) {
+                $preferito = 1;
+            } else {
+                $preferito = 0;
             }
         }
 

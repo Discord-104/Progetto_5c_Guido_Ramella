@@ -133,11 +133,8 @@
                 preferito = 1;
             }
 
-            let titolo = document.querySelector('#contenuto h2').innerText;
-
             let url = "ajax/attivita_anime.php?";
             url += "&anime_id=" + <?php echo $id; ?>;
-            url += "&titolo=" + titolo;
             url += "&status=" + status;
             url += "&punteggio=" + punteggio;
             url += "&episodi_visti=" + episodiVisti;

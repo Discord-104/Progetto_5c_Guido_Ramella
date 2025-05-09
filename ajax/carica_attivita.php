@@ -1,106 +1,100 @@
 <?php
-
-    /*
-    {
-        "status": "OK"|"ERR",
-        "msg":"", | "data":[]
-    }
-    */
-
     session_start();
     require_once("../classi/db.php");
 
-    // Controllo se l'utente è autenticato
     if (!isset($_SESSION["utente_id"])) {
-        $ret = [];
-        $ret["status"] = "ERR";
-        $ret["msg"] = "Non sei loggato.";
-        echo json_encode($ret);
+        echo json_encode(["status" => "ERR", "msg" => "Non sei loggato."]);
         die();
     }
 
-    // Controllo se c'è il DB
     if (!$conn) {
-        $ret = [];
-        $ret["status"] = "ERR";
-        $ret["msg"] = "Errore di connessione al database.";
-        echo json_encode($ret);
+        echo json_encode(["status" => "ERR", "msg" => "Errore di connessione al database."]);
         die();
     }
 
-    // Prendo le attività anime di tutti gli utenti
-    $sql = "SELECT u.username, aa.titolo, aa.riferimento_api, aa.episodi_visti, aa.status
-            FROM attivita_anime aa
-            INNER JOIN utenti u ON aa.utente_id = u.id
-            ORDER BY aa.data_ora DESC";
+    $utente_id = intval($_SESSION["utente_id"]);
 
-    $result = $conn->query($sql);
+    $sql_anime = "
+        SELECT aa.titolo, aa.riferimento_api, aa.status, aa.punteggio, aa.episodi_visti,
+            aa.data_inizio, aa.data_fine, aa.note, aa.rewatch, aa.preferito, aa.anno_uscita, aa.formato
+        FROM attivita_anime aa
+        INNER JOIN (
+            SELECT riferimento_api, MAX(data_ora) as max_data
+            FROM attivita_anime
+            WHERE utente_id = ?
+            GROUP BY riferimento_api
+        ) latest ON aa.riferimento_api = latest.riferimento_api 
+                AND aa.data_ora = latest.max_data
+        WHERE aa.utente_id = ?
+        ORDER BY aa.data_ora DESC
+    ";
 
-    if (!$result) {
-        $ret = [];
-        $ret["status"] = "ERR";
-        $ret["msg"] = "Errore nella query.";
-        echo json_encode($ret);
-        die();
-    }
+    $stmt = $conn->prepare($sql_anime);
+    $stmt->bind_param("ii", $utente_id, $utente_id);
+    $stmt->execute();
+    $result_anime = $stmt->get_result();
 
     $attivita = [];
 
-    while ($riga = $result->fetch_assoc()) {
-        $id_api = (int) $riga["riferimento_api"];
-        $immagine = "";
+    if ($result_anime) {
+        while ($riga = $result_anime->fetch_assoc()) {
+            $id_api = (int)$riga["riferimento_api"];
+            $immagine = "";
 
-        if ($id_api > 0) {
-            // Preparo la chiamata GraphQL
-            $query = [
-                'query' => '
-                    query ($id: Int) {
-                        Media(id: $id, type: ANIME) {
-                            coverImage {
-                                large
+            if ($id_api > 0) {
+                $query = [
+                    'query' => '
+                        query ($id: Int) {
+                            Media(id: $id, type: ANIME) {
+                                coverImage {
+                                    large
+                                }
                             }
                         }
+                    ',
+                    'variables' => ['id' => $id_api]
+                ];
+
+                $opts = [
+                    'http' => [
+                        'method' => 'POST',
+                        'header' => "Content-Type: application/json\r\nAccept: application/json\r\n",
+                        'content' => json_encode($query)
+                    ]
+                ];
+
+                $context = stream_context_create($opts);
+                $response = file_get_contents('https://graphql.anilist.co', false, $context);
+
+                if ($response !== false) {
+                    $data = json_decode($response, true);
+                    if (isset($data['data']['Media']['coverImage']['large'])) {
+                        $immagine = $data['data']['Media']['coverImage']['large'];
                     }
-                ',
-                'variables' => [
-                    'id' => $id_api
-                ]
-            ];
-
-            $opts = [
-                'http' => [
-                    'method'  => 'POST',
-                    'header'  => "Content-Type: application/json\r\nAccept: application/json\r\n",
-                    'content' => json_encode($query)
-                ]
-            ];
-
-            $context = stream_context_create($opts);
-            $response = file_get_contents('https://graphql.anilist.co', false, $context);
-
-            if ($response !== false) {
-                $data = json_decode($response, true);
-                if (isset($data['data']['Media']['coverImage']['large'])) {
-                    $immagine = $data['data']['Media']['coverImage']['large'];
                 }
             }
-        }
 
-        $attivita[] = [
-            "tipo" => "anime",
-            "username" => $riga["username"],
-            "titolo" => $riga["titolo"],
-            "episodi_visti" => $riga["episodi_visti"],
-            "status" => $riga["status"],
-            "immagine" => $immagine
-        ];
+            $attivita[] = [
+                "titolo" => $riga["titolo"],
+                "riferimento_api" => $riga["riferimento_api"],
+                "status" => $riga["status"],
+                "punteggio" => $riga["punteggio"],
+                "episodi_visti" => (int)$riga["episodi_visti"],
+                "data_inizio" => $riga["data_inizio"],
+                "data_fine" => $riga["data_fine"],
+                "note" => $riga["note"],
+                "rewatch" => (int)$riga["rewatch"],
+                "preferito" => (int)$riga["preferito"],
+                "anno_uscita" => $riga["anno_uscita"],
+                "formato" => $riga["formato"],
+                "immagine" => $immagine
+            ];
+        }
     }
 
-    // Risposta finale
-    $ret = [];
-    $ret["status"] = "OK";
-    $ret["data"] = $attivita;
-    echo json_encode($ret);
+    echo json_encode([
+        "status" => "OK",
+        "data" => $attivita
+    ]);
     die();
-
 ?>

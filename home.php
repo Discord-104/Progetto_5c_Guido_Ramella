@@ -37,7 +37,17 @@
 
     <div class="top-bar">
         <h1>Benvenuto <?php echo $utente['username']; ?></h1>
+        <div class="profile-container">
         <img src="<?php echo $utente['profile_image']; ?>" alt="Immagine profilo" class="profile-image">
+        <div class="profile-menu">
+            <a href="visualizza_anime.php">Anime</a>
+            <a href="visualizza_manga.php">Manga</a>
+            <a href="visualizza_fumetti.php">Fumetti</a>
+            <a href="visualizza_videogiochi.php">Videogiochi</a>
+            <a href="pannello_personale.php">Pannello personale</a>
+        </div>
+    </div>
+
     </div>
 
     <div class="search-container">

@@ -172,17 +172,16 @@
         if (isset($_GET["capitoli_letti"])) {
             if (preg_match('/^-?\d+$/', $_GET["capitoli_letti"])) {
                 $capitoli_letti = intval($_GET["capitoli_letti"]);
-                
+
                 // Se negativo, imposta a 0
                 if ($capitoli_letti < 0) {
                     $capitoli_letti = 0;
                 }
-                
-                // Se supera il massimo e il massimo è noto, imposta al massimo e stato a Complete
-                if ($capitoli_max !== null && $capitoli_letti > $capitoli_max) {
-                    $capitoli_letti = $capitoli_max;
-                    $status = "Complete";
-                }
+            }
+        } else {
+            // Se lo status è "Complete", imposta i capitoli letti al massimo
+            if ($status === "Complete" && $capitoli_max !== null) {
+                $capitoli_letti = $capitoli_max;
             }
         }
 
@@ -191,19 +190,19 @@
         if (isset($_GET["volumi_letti"])) {
             if (preg_match('/^-?\d+$/', $_GET["volumi_letti"])) {
                 $volumi_letti = intval($_GET["volumi_letti"]);
-                
+
                 // Se negativo, imposta a 0
                 if ($volumi_letti < 0) {
                     $volumi_letti = 0;
                 }
-                
-                // Se supera il massimo e il massimo è noto, imposta al massimo e stato a Complete
-                if ($volumi_max !== null && $volumi_letti > $volumi_max) {
-                    $volumi_letti = $volumi_max;
-                    $status = "Complete";
-                }
+            }
+        } else {
+            // Se lo status è "Complete", imposta i volumi letti al massimo
+            if ($status === "Complete" && $volumi_max !== null) {
+                $volumi_letti = $volumi_max;
             }
         }
+
 
         // Date
         $start_date = null;
