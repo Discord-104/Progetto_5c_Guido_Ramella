@@ -1,18 +1,31 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Arial, sans-serif;
     margin: 40px;
-    text-align: center; /* Per centrare i contenuti */
+    text-align: center;
+    background-color: #f7f9fc;
+    color: #333;
+    line-height: 1.6;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 30px;
+    position: relative;
 }
 
 #profilo, #preferiti {
     width: 80%;
-    margin: 0 auto;
-    border-collapse: collapse; /* Per una visualizzazione più simile a una tabella */
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 #profilo td, #preferiti td {
-    padding: 10px;
-    border: 1px solid #ccc;
+    padding: 15px;
+    border: 1px solid #e6e6e6;
 }
 
 #profilo img {
@@ -20,35 +33,198 @@ body {
     height: 150px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #ccc;
+    border: 3px solid #3498db;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+#profilo img:hover {
+    transform: scale(1.05);
 }
 
 #preferiti h2 {
-    color: #444;
+    color: #2c3e50;
     margin-bottom: 20px;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+    display: inline-block;
 }
 
 ul {
     list-style: none;
-    margin-left: 0;
-    padding-left: 0;
+    margin: 0;
+    padding: 0;
 }
 
 ul li {
     display: flex;
     align-items: center;
     gap: 15px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    padding: 8px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+ul li:hover {
+    background-color: #f5f7fa;
 }
 
 ul li img {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     object-fit: cover;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 ul li span {
+    font-size: 15px;
+    color: #2c3e50;
+    flex: 1;
+    text-align: left;
+}
+
+/* Stile del menu */
+.menu {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: inline-block;
+    cursor: pointer;
+    z-index: 100;
+}
+
+/* Rimuoviamo il content con &#x22EE e usiamo SVG */
+.menu svg {
+    width: 24px;
+    height: 24px;
+    fill: #3498db;
+    transition: transform 0.2s;
+}
+
+.menu:hover svg {
+    transform: scale(1.2);
+}
+
+/* Contenuto del menu a tendina */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    min-width: 180px;
+    z-index: 1;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+
+/* Opzioni nel menu */
+.dropdown-content a {
+    color: #333;
+    padding: 14px 18px;
+    text-decoration: none;
+    display: block;
+    transition: all 0.2s;
     font-size: 14px;
+    border-left: 3px solid transparent;
+}
+
+/* Cambia colore quando passa il mouse */
+.dropdown-content a:hover {
+    background-color: #f1f9ff;
+    border-left: 3px solid #3498db;
+    color: #3498db;
+}
+
+/* Animazione per il menu */
+.dropdown-content.show {
+    display: block;
+    animation: fadeIn 0.3s;
+}
+
+/* Animazione di fade-in */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.grafici-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: 30px;
+    gap: 20px;
+}
+        
+#grafico, #graficoTimeline {
+    width: 48%;
+    min-width: 300px;
+    margin-bottom: 25px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+#grafico:hover, #graficoTimeline:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+}
+        
+@media (max-width: 768px) {
+    #grafico, #graficoTimeline {
+        width: 100%;
+    }
+    
+    body {
+        margin: 20px;
+    }
+    
+    #profilo, #preferiti {
+        width: 95%;
+    }
+    
+    .menu {
+        top: 10px;
+        right: 10px;
+    }
+}
+
+#datiPersonali {
+    padding: 10px;
+    text-align: left;
+}
+
+#nomeUtente {
+    color: #3498db;
+    font-size: 22px;
+    margin-bottom: 5px;
+}
+        
+#infoBio {
+    font-style: italic;
+    color: #7f8c8d;
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+#statistiche {
+    text-align: left;
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.8;
 }

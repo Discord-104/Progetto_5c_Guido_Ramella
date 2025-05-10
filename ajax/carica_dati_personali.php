@@ -170,22 +170,100 @@
         return $preferiti;
     }
 
-    // Immagine profilo
-    function getImmagineProfilo($utente_id) {
+    // Immagine profilo e dati personali
+    function getDatiPersonali($utente_id) {
         global $conn;
 
-        $query = "SELECT profile_image FROM utenti WHERE id = ?";
+        $query = "SELECT username, first_name, last_name, email, birthdate, profile_image, bio FROM utenti WHERE id = ?";
         $stmt  = $conn->prepare($query);
         $stmt->bind_param("i", $utente_id);
         $stmt->execute();
 
         $result = $stmt->get_result()->fetch_assoc();
         
-        if (isset($result['profile_image'])) {
-            return $result['profile_image'];
+        if ($result) {
+            return [
+                'username' => $result['username'],
+                'first_name' => $result['first_name'],
+                'last_name' => $result['last_name'],
+                'email' => $result['email'],
+                'birthdate' => $result['birthdate'],
+                'profile_image' => $result['profile_image'],
+                'bio' => $result['bio'] ?? ''
+            ];
         } else {
             return null;
         }
+    }
+
+    // Funzione per ottenere i dati temporali delle attività
+    function getTimeline($utente_id) {
+        global $conn;
+        
+        // Anime Timeline
+        $animeQuery = "SELECT data_inizio, data_fine, COUNT(*) as conteggio, 'anime' as tipo 
+                    FROM attivita_anime 
+                    WHERE utente_id = ? AND data_inizio IS NOT NULL 
+                    GROUP BY YEAR(data_inizio), MONTH(data_inizio)
+                    ORDER BY data_inizio";
+        
+        // Manga Timeline
+        $mangaQuery = "SELECT data_inizio, data_fine, COUNT(*) as conteggio, 'manga' as tipo 
+                    FROM attivita_manga 
+                    WHERE utente_id = ? AND data_inizio IS NOT NULL 
+                    GROUP BY YEAR(data_inizio), MONTH(data_inizio)
+                    ORDER BY data_inizio";
+        
+        // Fumetti Timeline
+        $fumettoQuery = "SELECT data_inizio, data_fine, COUNT(*) as conteggio, 'fumetto' as tipo 
+                    FROM attivita_fumetto 
+                    WHERE utente_id = ? AND data_inizio IS NOT NULL 
+                    GROUP BY YEAR(data_inizio), MONTH(data_inizio)
+                    ORDER BY data_inizio";
+        
+        // Videogiochi Timeline
+        $videogiocoQuery = "SELECT start_date as data_inizio, end_date as data_fine, COUNT(*) as conteggio, 'videogioco' as tipo 
+                        FROM attivita_videogioco 
+                        WHERE utente_id = ? AND start_date IS NOT NULL 
+                        GROUP BY YEAR(start_date), MONTH(start_date)
+                        ORDER BY start_date";
+        
+        // Esegui le query
+        $timelineData = [];
+        
+        $stmtAnime = $conn->prepare($animeQuery);
+        $stmtAnime->bind_param("i", $utente_id);
+        $stmtAnime->execute();
+        $resultAnime = $stmtAnime->get_result();
+        while($row = $resultAnime->fetch_assoc()) {
+            $timelineData[] = $row;
+        }
+        
+        $stmtManga = $conn->prepare($mangaQuery);
+        $stmtManga->bind_param("i", $utente_id);
+        $stmtManga->execute();
+        $resultManga = $stmtManga->get_result();
+        while($row = $resultManga->fetch_assoc()) {
+            $timelineData[] = $row;
+        }
+        
+        $stmtFumetto = $conn->prepare($fumettoQuery);
+        $stmtFumetto->bind_param("i", $utente_id);
+        $stmtFumetto->execute();
+        $resultFumetto = $stmtFumetto->get_result();
+        while($row = $resultFumetto->fetch_assoc()) {
+            $timelineData[] = $row;
+        }
+        
+        $stmtVideogioco = $conn->prepare($videogiocoQuery);
+        $stmtVideogioco->bind_param("i", $utente_id);
+        $stmtVideogioco->execute();
+        $resultVideogioco = $stmtVideogioco->get_result();
+        while($row = $resultVideogioco->fetch_assoc()) {
+            $timelineData[] = $row;
+        }
+        
+        return $timelineData;
     }
 
     // Calcolo statistiche
@@ -201,7 +279,11 @@
     $preferiti_fumetti     = getPreferitiConImmagine('attivita_fumetto',    $utente_id, "fumetto");
     $preferiti_videogiochi = getPreferitiConImmagine('attivita_videogioco', $utente_id, "videogioco");
 
-    $immagine_profilo = getImmagineProfilo($utente_id);
+    // Ottieni dati personali e immagine profilo
+    $dati_personali = getDatiPersonali($utente_id);
+    
+    // Ottieni dati timeline
+    $timeline = getTimeline($utente_id);
 
     // Risposta finale
     echo json_encode([
@@ -217,7 +299,9 @@
             "preferiti_manga"       => $preferiti_manga,
             "preferiti_fumetti"     => $preferiti_fumetti,
             "preferiti_videogiochi" => $preferiti_videogiochi,
-            "immagine_profilo"      => $immagine_profilo
+            "dati_personali"        => $dati_personali,
+            "immagine_profilo"      => $dati_personali['profile_image'],
+            "timeline"              => $timeline
         ]
     ]);
     die();
