@@ -349,7 +349,7 @@ if (isset($_POST['modifica_profilo'])) {
                             </div>
                             
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                                <a href="profilo.php" class="btn btn-secondary me-md-2">Annulla</a>
+                                <a href="pannello_personale.php" class="btn btn-secondary me-md-2">Annulla</a>
                                 <button type="submit" name="modifica_profilo" class="btn btn-primary">Salva modifiche</button>
                             </div>
                         </form>

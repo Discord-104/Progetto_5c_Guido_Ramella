@@ -1,0 +1,234 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom right, #121212, #1e1e2d);
+    color: #e0e0e0;
+    padding: 40px 20px;
+    overflow-x: hidden; /* Previene lo scroll orizzontale indesiderato */
+}
+
+.brand {
+    color: #5f85db;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(95, 133, 219, 0.5);
+}
+
+.card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    position: relative;
+    background-color: #2a2a3a;
+    color: #e0e0e0;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(95, 133, 219, 0.3);
+    z-index: 10;
+}
+
+.card-img-top {
+    height: 200px; /* Aumentato l'altezza delle immagini */
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.card-body {
+    background-color: #2a2a3a;
+}
+
+.card-title {
+    color: #5f85db;
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.15);
+}
+
+/* Overlay per descrizione sulle card */
+.card-overlay {
+    position: absolute;
+    bottom: -100%;
+    left: 0;
+    right: 0;
+    background: rgba(20, 20, 35, 0.9);
+    color: white;
+    padding: 15px;
+    transition: bottom 0.4s ease-in-out;
+    text-align: left;
+}
+
+.card:hover .card-overlay {
+    bottom: 0;
+}
+
+.animated {
+    opacity: 0;
+    animation-fill-mode: forwards;
+}
+
+.fade-in {
+    animation: fadeIn 1.2s ease-out forwards;
+}
+
+.slide-in {
+    animation: slideIn 1.3s ease-out forwards;
+}
+
+.pop-in {
+    animation: popIn 1s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Effetto di scorrimento orizzontale */
+#random-images {
+    display: flex;
+    gap: 15px;
+    padding: 20px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+#random-images::after {
+    content: "";
+    display: block;
+    flex: 0 0 20px;
+}
+
+.image-slider {
+    display: flex;
+    gap: 15px;
+    animation: slideHorizontal 40s linear infinite;
+    animation-play-state: running;
+}
+
+.image-slider:hover {
+    animation-play-state: paused;
+}
+
+@keyframes slideHorizontal {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
+
+#random-images .card {
+    min-width: 180px;
+    flex: 0 0 auto;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin: 5px;
+    background-color: #2a2a3a;
+}
+
+#random-images .card:hover {
+    transform: scale(1.2);
+}
+
+#random-images .card-img-top {
+    height: 240px; /* Immagini più alte nelle card dello slider */
+}
+
+/* Descrizione dinamica del sito */
+.dynamic-description {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: rgba(42, 42, 58, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border-left: 4px solid #5f85db;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.dynamic-description.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.dynamic-description h3 {
+    color: #5f85db;
+    margin-bottom: 15px;
+}
+
+/* Personalizzazione scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1e1e2d;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #5f85db;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #3f67bb;
+}
+
+/* Effetto parallax per sfondo */
+.parallax-bg {
+    position: fixed;
+    top: -50%; /* Estendi verso l'alto */
+    left: -50%; /* Estendi verso sinistra */
+    width: 200%; /* Raddoppia la larghezza */
+    height: 200%; /* Raddoppia l'altezza */
+    z-index: -1;
+    background-image: radial-gradient(circle at 10% 20%, #304b78 0%, #121212 70%);
+    background-attachment: fixed;
+    pointer-events: none;
+}
+
+
+html, body {
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom right, #121212, #1e1e2d);
+}
+
+body {
+    padding: 40px 20px; /* Mantieni il padding originale del body */
+}
+
+/* Media query per dispositivi mobili */
+@media (max-width: 768px) {
+    #random-images .card:hover {
+        transform: scale(1.1);
+    }
+    
+    .dynamic-description {
+        margin: 20px auto;
+    }
+}

@@ -1,0 +1,340 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom right, #121212, #1e1e2d);
+    color: #e0e0e0;
+    padding: 40px 20px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+        
+.login-container {
+    max-width: 400px;
+    width: 100%;
+}
+        
+.card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    position: relative;
+    background-color: #2a2a3a;
+    color: #e0e0e0;
+    padding: 20px;
+    animation: fadeIn 1.2s ease-out forwards;
+}
+        
+.card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 20px rgba(95, 133, 219, 0.3);
+}
+        
+.card-title {
+    color: #5f85db;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(95, 133, 219, 0.5);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+        
+.form-control {
+    background-color: #1e1e2d;
+    border: 1px solid #3a3a4a;
+    color: #e0e0e0;
+    transition: all 0.3s;
+}
+        
+.form-control:focus {
+    background-color: #1e1e2d;
+    border-color: #5f85db;
+    color: #e0e0e0;
+    box-shadow: 0 0 8px rgba(95, 133, 219, 0.5);
+}
+        
+.btn-primary {
+    background-color: #5f85db;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s;
+    width: 100%;
+    margin-top: 1rem;
+    font-weight: bold;
+    padding: 10px;
+}
+        
+.btn-primary:hover {
+    background-color: #3f67bb;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+}
+        
+.btn-primary:active {
+    transform: translateY(0);
+}
+        
+.register-link {
+    text-align: center;
+    margin-top: 15px;
+}
+        
+.register-link a {
+    color: #5f85db;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+        
+.register-link a:hover {
+    color: #3f67bb;
+    text-decoration: underline;
+}
+        
+.form-floating label {
+    color: #a0a0a0;
+}
+        
+.form-floating > .form-control:focus ~ label {
+    color: #5f85db;
+}
+        
+.is-valid {
+    border-color: #198754 !important;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+        
+.is-invalid {
+    border-color: #dc3545 !important;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+        
+.invalid-feedback {
+    color: #ff6b6b;
+    font-size: 0.875rem;
+}
+        
+.valid-feedback {
+    color: #4ddb95;
+    font-size: 0.875rem;
+}
+        
+.animated {
+    opacity: 0;
+    animation-fill-mode: forwards;
+}
+        
+.fade-in {
+    animation: fadeIn 1.2s ease-out forwards;
+}
+        
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+.error-box {
+    background-color: rgba(220, 53, 69, 0.15);
+    border-left: 4px solid #dc3545;
+    color: #ff6b6b;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    animation: fadeInDown 0.5s ease-out forwards;
+    box-shadow: 0 2px 10px rgba(220, 53, 69, 0.2);
+}
+        
+.error-box i {
+    font-size: 18px;
+    margin-right: 10px;
+}
+        
+.error-box p {
+     margin: 0;
+    font-size: 0.9rem;
+}
+        
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+        
+.success-box {
+    background-color: rgba(25, 135, 84, 0.15);
+    border-left: 4px solid #198754;
+    color: #4ddb95;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    animation: fadeInDown 0.5s ease-out forwards;
+    box-shadow: 0 2px 10px rgba(25, 135, 84, 0.2);
+}
+        
+.success-box i {
+    font-size: 18px;
+    margin-right: 10px;
+}
+        
+        
+.input-icon {
+    position: relative;
+}
+        
+.input-icon i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #5f85db;
+    z-index: 10;
+}
+        
+.input-icon input {
+    padding-left: 40px !important;
+}
+        
+        
+.social-login {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 15px;
+}
+        
+.social-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    transition: all 0.3s;
+}
+        
+.social-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+        
+.fb {
+    background: #3b5998;
+}
+        
+.google {
+    background: #db4437;
+}
+        
+.twitter {
+    background: #1da1f2;
+}
+        
+
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    color: #a0a0a0;
+}
+        
+.separator::before,
+.separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #3a3a4a;
+}
+        
+.separator::before {
+    margin-right: 10px;
+}
+        
+.separator::after {
+    margin-left: 10px;
+}
+
+.form-check-label, 
+.form-label,
+label {
+    color: #ffffff !important; /* Bianco per massima leggibilità */
+    font-weight: 500; /* Testo leggermente più spesso */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); /* Ombra per migliorare la leggibilità */
+}
+
+.form-control::placeholder {
+    color: #b0b0b0 !important; /* Grigio chiaro per i placeholder */
+    opacity: 1;
+}
+
+a, .register-link a {
+    color: #7fa5ff !important; /* Blu più chiaro e brillante */
+    font-weight: 500;
+}
+
+a:hover, .register-link a:hover {
+    color: #a0c0ff !important; /* Ancora più chiaro in hover */
+    text-shadow: 0 0 5px rgba(127, 165, 255, 0.5);
+}
+
+.form-check-label {
+    margin-left: 5px;
+}
+
+/* Miglioramento del contrasto per il testo della card */
+.card-title, h2, h3, h4 {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(95, 133, 219, 0.7);
+}
+
+/* Migliorare il contrasto degli input */
+.form-control {
+    background-color: #252533;
+    border-color: #5f85db;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.form-control:focus {
+    background-color: #2d2d3d;
+    color: #ffffff;
+    border-color: #7fa5ff;
+    box-shadow: 0 0 0 0.25rem rgba(127, 165, 255, 0.25);
+}
+
+/* Migliore visibilità per i messaggi di errore e feedback */
+.invalid-feedback {
+    color: #ff8b8b; /* Rosso più chiaro */
+    font-weight: 500;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.valid-feedback {
+    color: #6dffb5; /* Verde più chiaro */
+    font-weight: 500;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+/* Icona nell'input più visibile */
+.input-icon i {
+    color: #7fa5ff; /* Colore più brillante per le icone */
+}
+
+
+

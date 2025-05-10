@@ -1,124 +1,144 @@
 // Funzioni di validazione
+function validaUsername(username) {
+    return username && username.length >= 3;
+}
+
 function validaEmail(email) {
-    return /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(email);
+    let emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return emailRegex.test(email);
 }
 
-function validaNomeCognome(nome) {
-    return /^[a-zA-ZàèéìòùÀÈÉÌÒÙ\s]+$/.test(nome);
+function validaNomeCognome(str) {
+    let nomeRegex = /^[a-zA-ZàèéìòùÀÈÉÌÒÙ\s]+$/;
+    return nomeRegex.test(str);
 }
 
-function validaTelefono(telefono) {
-    return /^[0-9]{8,15}$/.test(telefono);
+function validaTelefono(phone) {
+    let phoneRegex = /^[0-9]{8,15}$/;
+    return phoneRegex.test(phone);
 }
 
 function validaPassword(password) {
-    return password.length >= 8;
-}
-
-function validaUsername(username) {
-    return username.length >= 3;
+    return password && password.length >= 8;
 }
 
 function validaDataNascita(data) {
-    let anno = parseInt(data.substring(0, 4));
-    return anno >= 1900 && anno <= new Date().getFullYear();
+    if (!data) return false;
+    
+    let anno = parseInt(data.substring(0, 4), 10);
+    let annoCorrente = new Date().getFullYear();
+    return anno >= 1900 && anno <= annoCorrente;
 }
 
-// Funzione di validazione del form completo
-function validateForm(event) {
+// Funzione per generare un timestamp unico
+function getUniqueTimestamp() {
+    let now = new Date();
+    let year = now.getFullYear();
+    let month = String(now.getMonth() + 1).padStart(2, '0');
+    let day = String(now.getDate()).padStart(2, '0');
+    let hours = String(now.getHours()).padStart(2, '0');
+    let minutes = String(now.getMinutes()).padStart(2, '0');
+    let seconds = String(now.getSeconds()).padStart(2, '0');
+    let milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+    
+    return year + month + day + "_" + hours + minutes + seconds + "_" + milliseconds;
+}
+
+// Funzione per validare il form di registrazione
+function validaForm(event) {
     let isValid = true;
-    let form = document.getElementById('profileForm');
+    
+    // Elementi del form
+    let username = document.getElementById('username');
+    let email = document.getElementById('email');
+    let firstName = document.getElementById('first_name');
+    let lastName = document.getElementById('last_name');
+    let phone = document.getElementById('phone');
+    let birthdate = document.getElementById('birthdate');
+    let password = document.getElementById('password');
+    let confermaPassword = document.getElementById('confermaPassword');
+    
+    // Reset dello stato di validazione
+    let elementiForm = [username, email, firstName, lastName, phone, birthdate, password, confermaPassword];
+    for (let i = 0; i < elementiForm.length; i++) {
+        elementiForm[i].classList.remove('is-invalid');
+        elementiForm[i].classList.remove('is-valid');
+    }
     
     // Validazione username
-    let username = document.getElementById('username');
-    if (!username.value || !validaUsername(username.value)) {
+    if (!validaUsername(username.value)) {
         username.classList.add('is-invalid');
         isValid = false;
     } else {
-        username.classList.remove('is-invalid');
         username.classList.add('is-valid');
     }
     
     // Validazione email
-    let email = document.getElementById('email');
-    if (!email.value || !validaEmail(email.value)) {
+    if (!validaEmail(email.value)) {
         email.classList.add('is-invalid');
         isValid = false;
     } else {
-        email.classList.remove('is-invalid');
         email.classList.add('is-valid');
     }
     
     // Validazione nome
-    let firstName = document.getElementById('first_name');
-    if (!firstName.value || !validaNomeCognome(firstName.value)) {
+    if (!validaNomeCognome(firstName.value)) {
         firstName.classList.add('is-invalid');
         isValid = false;
     } else {
-        firstName.classList.remove('is-invalid');
         firstName.classList.add('is-valid');
     }
     
     // Validazione cognome
-    let lastName = document.getElementById('last_name');
-    if (!lastName.value || !validaNomeCognome(lastName.value)) {
+    if (!validaNomeCognome(lastName.value)) {
         lastName.classList.add('is-invalid');
         isValid = false;
     } else {
-        lastName.classList.remove('is-invalid');
         lastName.classList.add('is-valid');
     }
     
     // Validazione telefono
-    let phone = document.getElementById('phone');
-    if (!phone.value || !validaTelefono(phone.value)) {
+    if (!validaTelefono(phone.value)) {
         phone.classList.add('is-invalid');
         isValid = false;
     } else {
-        phone.classList.remove('is-invalid');
         phone.classList.add('is-valid');
     }
     
     // Validazione data di nascita
-    let birthdate = document.getElementById('birthdate');
-    if (!birthdate.value || !validaDataNascita(birthdate.value)) {
+    if (!validaDataNascita(birthdate.value)) {
         birthdate.classList.add('is-invalid');
         isValid = false;
     } else {
-        birthdate.classList.remove('is-invalid');
         birthdate.classList.add('is-valid');
     }
     
-    // Validazione password (solo se si sta cambiando la password)
-    let currentPassword = document.getElementById('current_password');
-    let newPassword = document.getElementById('new_password');
-    let confirmPassword = document.getElementById('confirm_password');
-    
-    if (currentPassword.value || newPassword.value || confirmPassword.value) {
-        if (!currentPassword.value) {
-            currentPassword.classList.add('is-invalid');
-            isValid = false;
-        } else {
-            currentPassword.classList.remove('is-invalid');
-        }
-        
-        if (!newPassword.value || !validaPassword(newPassword.value)) {
-            newPassword.classList.add('is-invalid');
-            isValid = false;
-        } else {
-            newPassword.classList.remove('is-invalid');
-            newPassword.classList.add('is-valid');
-        }
-        
-        if (newPassword.value !== confirmPassword.value) {
-            confirmPassword.classList.add('is-invalid');
-            isValid = false;
-        } else if (newPassword.value) {
-            confirmPassword.classList.remove('is-invalid');
-            confirmPassword.classList.add('is-valid');
-        }
+    // Validazione password
+    if (!validaPassword(password.value)) {
+        password.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        password.classList.add('is-valid');
     }
     
+    // Validazione conferma password
+    if (password.value !== confermaPassword.value) {
+        confermaPassword.classList.add('is-invalid');
+        isValid = false;
+    } else if (password.value) {
+        confermaPassword.classList.add('is-valid');
+    }
+    
+    // Controllo immagine profilo
+    let fileInput = document.getElementById('profile_image');
+    let defaultImage = document.getElementById('immagine_default');
+    
+    if (fileInput && defaultImage && fileInput.files.length === 0 && !defaultImage.value) {
+        alert("Devi caricare un'immagine del profilo o scegliere un'immagine predefinita.");
+        isValid = false;
+    }
+    
+    // Impedisci l'invio del form se non è valido
     if (!isValid) {
         event.preventDefault();
         return false;
@@ -127,126 +147,272 @@ function validateForm(event) {
     return true;
 }
 
-// Funzione per mostrare o nascondere feedback di validazione
-function toggleValidationFeedback(element, isValid) {
-    if (isValid) {
-        element.classList.remove('is-invalid');
-        element.classList.add('is-valid');
-    } else {
-        element.classList.add('is-invalid');
-        element.classList.remove('is-valid');
-    }
-}
-
-// Funzione per gestire l'anteprima dell'immagine
-function handleImagePreview(event) {
-    let file = event.target.files[0];
-    if (file) {
-        let reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('preview-image').src = e.target.result;
-            // Resetta il campo immagine predefinita
-            document.getElementById('immagine_default').value = '';
-            // Rimuovi la selezione dalle immagini predefinite
-            let imageItems = document.querySelectorAll('.profile-image-item');
-            for (let i = 0; i < imageItems.length; i++) {
-                imageItems[i].classList.remove('selected');
+// Configurazione degli eventi al caricamento del DOM
+document.addEventListener('DOMContentLoaded', function() {
+    // Validazione in tempo reale per username
+    let username = document.getElementById('username');
+    if (username) {
+        username.addEventListener('input', function() {
+            if (this.value.length > 0) {
+                if (validaUsername(this.value)) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
             }
-        };
-        reader.readAsDataURL(file);
+        });
     }
-}
-
-// Gestione della selezione di un'immagine predefinita
-function setupDefaultImageSelection() {
-    let imageItems = document.querySelectorAll('.profile-image-item');
-    for (let i = 0; i < imageItems.length; i++) {
-        imageItems[i].addEventListener('click', function() {
-            // Rimuovi la classe selected da tutti gli elementi
-            let allItems = document.querySelectorAll('.profile-image-item');
-            for (let j = 0; j < allItems.length; j++) {
-                allItems[j].classList.remove('selected');
+    
+    // Validazione in tempo reale per nome
+    let firstName = document.getElementById('first_name');
+    if (firstName) {
+        firstName.addEventListener('input', function() {
+            if (this.value.length > 0) {
+                if (validaNomeCognome(this.value)) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            }
+        });
+    }
+    
+    // Validazione in tempo reale per cognome
+    let lastName = document.getElementById('last_name');
+    if (lastName) {
+        lastName.addEventListener('input', function() {
+            if (this.value.length > 0) {
+                if (validaNomeCognome(this.value)) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            }
+        });
+    }
+    
+    // Validazione in tempo reale per telefono
+    let phone = document.getElementById('phone');
+    if (phone) {
+        phone.addEventListener('input', function() {
+            if (this.value.length > 0) {
+                if (validaTelefono(this.value)) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            }
+        });
+    }
+    
+    // Validazione in tempo reale per email
+    let email = document.getElementById('email');
+    if (email) {
+        email.addEventListener('input', function() {
+            if (this.value.length > 0) {
+                if (validaEmail(this.value)) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            }
+        });
+    }
+    
+    // Validazione in tempo reale per data di nascita
+    let birthdate = document.getElementById('birthdate');
+    if (birthdate) {
+        birthdate.addEventListener('input', function() {
+            if (this.value.length > 0) {
+                if (validaDataNascita(this.value)) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            }
+        });
+    }
+    
+    // Validazione in tempo reale per password
+    let password = document.getElementById('password');
+    if (password) {
+        password.addEventListener('input', function() {
+            if (this.value.length > 0) {
+                if (validaPassword(this.value)) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
             }
             
-            // Aggiungi la classe selected all'elemento corrente
-            this.classList.add('selected');
-            
-            let value = this.getAttribute('data-value');
-            let imageSrc = this.querySelector('img').src;
-            
-            // Aggiorna l'anteprima
-            document.getElementById('preview-image').src = imageSrc;
+            // Controlla anche la conferma password
+            let confermaPassword = document.getElementById('confermaPassword');
+            if (confermaPassword && confermaPassword.value.length > 0) {
+                if (this.value === confermaPassword.value) {
+                    confermaPassword.classList.remove('is-invalid');
+                    confermaPassword.classList.add('is-valid');
+                } else {
+                    confermaPassword.classList.remove('is-valid');
+                    confermaPassword.classList.add('is-invalid');
+                }
+            }
+        });
+    }
+    
+    // Validazione in tempo reale per conferma password
+    let confermaPassword = document.getElementById('confermaPassword');
+    if (confermaPassword) {
+        confermaPassword.addEventListener('input', function() {
+            if (this.value.length > 0) {
+                let passwordValue = document.getElementById('password').value;
+                if (this.value === passwordValue) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            }
+        });
+    }
+    
+    // Gestione dell'upload di un'immagine personale
+    let fileInput = document.getElementById('profile_image');
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                let file = this.files[0];
+                
+                // Controllo del tipo di file
+                let validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Formato file non supportato. Utilizzare solo immagini JPG, PNG o GIF.');
+                    this.value = '';
+                    return;
+                }
+                
+                // Controllo della dimensione del file (max 2MB)
+                let maxSize = 2 * 1024 * 1024; // 2MB
+                if (file.size > maxSize) {
+                    alert('L\'immagine è troppo grande. Dimensione massima consentita: 2MB.');
+                    this.value = '';
+                    return;
+                }
+                
+                // Ottieni l'estensione del file
+                let fileExt = file.name.split('.').pop().toLowerCase();
+                
+                // Crea un nuovo nome file con timestamp
+                let timestamp = getUniqueTimestamp();
+                let newFileName = 'user_' + timestamp + '.' + fileExt;
+                
+                // Aggiorna il campo nascosto per il nuovo nome del file
+                let newFileNameInput = document.getElementById('new_file_name');
+                if (newFileNameInput) {
+                    newFileNameInput.value = newFileName;
+                }
+                
+                // Anteprima dell'immagine
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    // Aggiorna l'anteprima
+                    let previewImage = document.getElementById('preview-image');
+                    if (previewImage) {
+                        previewImage.src = e.target.result;
+                        
+                        // Aggiungi effetto di animazione per evidenziare il cambio
+                        previewImage.classList.add('preview-updated');
+                        setTimeout(function() {
+                            previewImage.classList.remove('preview-updated');
+                        }, 500);
+                    } else {
+                        // Se non esiste ancora l'anteprima, crea l'elemento
+                        let previewSection = document.getElementById('preview-img');
+                        if (previewSection) {
+                            let img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.id = 'preview-image';
+                            img.className = 'preview-image';
+                            img.style = 'width:60px; height:60px; border-radius:50%; margin-top:10px;';
+                            previewSection.appendChild(img);
+                        }
+                    }
+                    
+                    // Reset dell'immagine predefinita
+                    let defaultImage = document.getElementById('immagine_default');
+                    if (defaultImage) {
+                        defaultImage.value = '';
+                    }
+                    
+                    // Rimuovi la classe 'selected' da tutti gli elementi
+                    let imageItems = document.querySelectorAll('.profile-image-item');
+                    for (let i = 0; i < imageItems.length; i++) {
+                        imageItems[i].classList.remove('selected');
+                    }
+                    
+                    // Mostra un messaggio di conferma
+                    console.log("Immagine personalizzata caricata e pronta per l'invio");
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Gestione del click sugli elementi delle immagini predefinite
+    let profileImageItems = document.querySelectorAll('.profile-image-item');
+    for (let i = 0; i < profileImageItems.length; i++) {
+        profileImageItems[i].addEventListener('click', function() {
+            // Ottieni il valore dell'immagine selezionata
+            let selectedImage = this.getAttribute('data-value');
             
             // Aggiorna il campo nascosto
-            document.getElementById('immagine_default').value = value;
+            let defaultImageInput = document.getElementById('immagine_default');
+            if (defaultImageInput) {
+                defaultImageInput.value = selectedImage;
+            }
             
-            // Resetta il campo di caricamento file
-            document.getElementById('profile_image').value = '';
-        });
-    }
-}
-
-// Funzione per aggiungere validazione in tempo reale ai campi
-function setupRealtimeValidation() {
-    // Array di oggetti con i selettori e le loro funzioni di validazione
-    let validationFields = [
-        { id: 'username', validator: validaUsername },
-        { id: 'email', validator: validaEmail },
-        { id: 'first_name', validator: validaNomeCognome },
-        { id: 'last_name', validator: validaNomeCognome },
-        { id: 'phone', validator: validaTelefono },
-        { id: 'birthdate', validator: validaDataNascita }
-    ];
-    
-    // Aggiungi listener per ogni campo
-    for (let i = 0; i < validationFields.length; i++) {
-        let field = document.getElementById(validationFields[i].id);
-        if (field) {
-            field.addEventListener('blur', function() {
-                let isValid = field.value && validationFields[i].validator(field.value);
-                toggleValidationFeedback(field, isValid);
-            });
-        }
-    }
-    
-    // Gestione speciale per i campi password
-    let newPassword = document.getElementById('new_password');
-    if (newPassword) {
-        newPassword.addEventListener('blur', function() {
-            if (this.value) {
-                toggleValidationFeedback(this, validaPassword(this.value));
+            // Rimuovi la classe 'selected' da tutti gli elementi
+            for (let j = 0; j < profileImageItems.length; j++) {
+                profileImageItems[j].classList.remove('selected');
+            }
+            
+            // Aggiungi la classe 'selected' all'elemento corrente
+            this.classList.add('selected');
+            
+            // Aggiorna l'anteprima dell'immagine
+            let previewImage = document.getElementById('preview-image');
+            if (previewImage) {
+                previewImage.src = 'default_profiles/' + selectedImage;
+                
+                // Aggiungi effetto di animazione per evidenziare il cambio
+                previewImage.classList.add('preview-updated');
+                setTimeout(function() {
+                    previewImage.classList.remove('preview-updated');
+                }, 500);
+                
+                // Mostra un messaggio di conferma
+                console.log("Immagine predefinita selezionata: " + selectedImage);
+            }
+            
+            // Reset dell'input file
+            let fileInput = document.getElementById('profile_image');
+            if (fileInput) {
+                fileInput.value = '';
             }
         });
-    }
-    
-    let confirmPassword = document.getElementById('confirm_password');
-    if (confirmPassword) {
-        confirmPassword.addEventListener('blur', function() {
-            if (this.value) {
-                let newPwdValue = document.getElementById('new_password').value;
-                toggleValidationFeedback(this, this.value === newPwdValue);
-            }
-        });
-    }
-}
-
-// Inizializzazione al caricamento della pagina
-document.addEventListener('DOMContentLoaded', function() {
-    // Setup gestione immagini predefinite
-    setupDefaultImageSelection();
-    
-    // Setup validazione in tempo reale
-    setupRealtimeValidation();
-    
-    // Setup anteprima immagine
-    let profileImageUpload = document.getElementById('profile_image');
-    if (profileImageUpload) {
-        profileImageUpload.addEventListener('change', handleImagePreview);
-    }
-    
-    // Setup validazione form al submit
-    let form = document.getElementById('profileForm');
-    if (form) {
-        form.addEventListener('submit', validateForm);
     }
 });

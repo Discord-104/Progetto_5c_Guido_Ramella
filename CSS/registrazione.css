@@ -1,0 +1,344 @@
+/* Stile globale */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom right, #121212, #1e1e2d);
+    color: #e0e0e0;
+    padding: 20px 0;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #2a2a3a;
+    color: #e0e0e0;
+}
+
+.card-header {
+    background-color: #5f85db !important;
+    padding: 15px;
+}
+
+.invalid-feedback {
+    font-size: 0.85rem;
+}
+
+/* Stili per menu dropdown */
+.dropdown {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.dropbtn {
+    background-color: #5f85db;
+    color: white;
+    padding: 10px 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 100%;
+    text-align: left;
+    transition: background-color 0.3s;
+}
+
+.dropbtn:hover {
+    background-color: #4a6cb3;
+}
+
+/* Stili per profilo immagini container */
+.profile-images-container {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 10px;
+    padding: 10px 0;
+    margin-bottom: 15px;
+}
+
+.profile-image-item {
+    flex: 0 0 auto;
+    cursor: pointer;
+    text-align: center;
+    border: 2px solid transparent;
+    padding: 5px;
+    border-radius: 5px;
+    transition: all 0.2s;
+}
+
+.profile-image-item:hover {
+    border-color: #0d6efd;
+    transform: scale(1.05);
+}
+
+.profile-image-item.selected {
+    border-color: #0d6efd;
+    background-color: #3a3a4a;
+    transform: scale(1.05);
+}
+
+.profile-image-item img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 5px;
+}
+
+.profile-image-item .name {
+    font-size: 0.8rem;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #e0e0e0;
+}
+
+/* Stile per immagine di anteprima */
+.preview-image {
+    display: block;
+    margin-top: 10px;
+    border: 3px solid #5f85db;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+}
+
+/* Aggiunto effetto di animazione per l'anteprima dell'immagine */
+#preview-image {
+    transition: all 0.3s ease;
+}
+
+/* Classe per evidenziare l'aggiornamento dell'anteprima */
+.preview-updated {
+    border-color: #28a745 !important;
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(40, 167, 69, 0.7) !important;
+    animation: pulse 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Stili per input e bottoni */
+.btn-primary {
+    background-color: #5f85db;
+    border-color: #5f85db;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #4a6cb3;
+    border-color: #4a6cb3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(95, 133, 219, 0.3);
+}
+
+.input-group-text {
+    background-color: #3a3a4a;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+.form-control {
+    background-color: #252533;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+.form-control:focus {
+    background-color: #2d2d3d;
+    color: #fff;
+    border-color: #5f85db;
+    box-shadow: 0 0 0 0.25rem rgba(95, 133, 219, 0.25);
+}
+
+textarea.form-control {
+    min-height: 100px;
+}
+
+/* Stili per validazione */
+.form-control.is-valid {
+    border-color: #28a745;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(.375em + .1875rem) center;
+    background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(.375em + .1875rem) center;
+    background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+}
+
+/* Personalizzazione scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1e1e2d;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #5f85db;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4a6cb3;
+}
+
+/* Responsività */
+@media (max-width: 768px) {
+    .card {
+        margin: 0 10px;
+    }
+    
+    .profile-images-container {
+        justify-content: center;
+    }
+}
+
+/* Effetti di transizione */
+.form-control, .btn, .profile-image-item, .avatar-image {
+    transition: all 0.3s ease;
+}
+
+/* Tooltip custom */
+.tooltip-custom {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-custom .tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: #2a2a3a;
+    color: #e0e0e0;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border: 1px solid #5f85db;
+}
+
+.tooltip-custom:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+.form-label {
+    color: #ffffff !important; /* Bianco puro per massimo contrasto */
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    margin-bottom: 0.5rem;
+    font-size: 1.05rem;
+}
+
+/* Migliorare la leggibilità del testo nella card */
+.card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #2a2a3a;
+    color: #ffffff; /* Aumentato contrasto */
+}
+
+/* Header della card più visibile */
+.card-header {
+    background-color: #5f85db !important;
+    padding: 15px;
+}
+
+.card-header h2 {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Migliorare visibilità messaggi di validazione */
+.invalid-feedback {
+    color: #ff8b8b; /* Rosso più chiaro */
+    font-weight: 500;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+    font-size: 0.85rem;
+}
+
+/* Migliorare visibilità dei campi input */
+.form-control {
+    background-color: #252533;
+    border-color: #5f85db; /* Bordo colorato per maggiore visibilità */
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.form-control::placeholder {
+    color: #b0b0b0 !important;
+    opacity: 1;
+}
+
+.form-control:focus {
+    background-color: #2d2d3d;
+    color: #ffffff;
+    border-color: #7fa5ff;
+    box-shadow: 0 0 0 0.25rem rgba(127, 165, 255, 0.25);
+}
+
+/* Migliorare visibilità delle icone nei gruppi input */
+.input-group-text {
+    background-color: #3a3a4a;
+    color: #7fa5ff; /* Blu più chiaro per le icone */
+    border-color: #5f85db;
+}
+
+/* Migliorare leggibilità testo nelle sezioni di avviso */
+.text-muted {
+    color: #c0c0c0 !important; /* Grigio più chiaro anziché muted */
+}
+
+/* Link più visibili */
+a {
+    color: #7fa5ff !important;
+    font-weight: 500;
+}
+
+a:hover {
+    color: #a0c0ff !important;
+    text-shadow: 0 0 5px rgba(127, 165, 255, 0.5);
+}
+
+/* Migliorare leggibilità dei nomi delle immagini di profilo */
+.profile-image-item .name {
+    font-size: 0.85rem;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #ffffff; /* Bianco anziché grigio */
+    font-weight: 500;
+    margin-top: 5px;
+}
+
+/* Evidenziare meglio la selezione delle immagini */
+.profile-image-item.selected {
+    border-color: #7fa5ff;
+    background-color: rgba(95, 133, 219, 0.3);
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(127, 165, 255, 0.5);
+}
