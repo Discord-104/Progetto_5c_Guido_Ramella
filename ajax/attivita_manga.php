@@ -21,7 +21,7 @@
         return $d && $d->format($date_format) === $data;
     }
 
-    // Funzione per ottenere titolo, capitoli max e volumi max da Anilist
+    // Funzione per ottenere titolo, capitoli max, volumi max e formato da Anilist
     function get_info_manga_da_anilist($manga_id) {
         $risultato = [];
 
@@ -43,6 +43,7 @@
                     startDate {
                         year
                     }
+                    format
                 }
             }
         ';
@@ -90,11 +91,17 @@
                 $anno_uscita = $manga["startDate"]["year"];
             }
             
+            $formato = null;
+            if (isset($manga["format"])) {
+                $formato = $manga["format"];
+            }
+            
             $risultato["dato"] = [
                 "titolo" => $titolo,
                 "capitoli_max" => $manga["chapters"], // Può essere null
                 "volumi_max" => $manga["volumes"],    // Può essere null
-                "anno_uscita" => $anno_uscita
+                "anno_uscita" => $anno_uscita,
+                "formato" => $formato
             ];
         } else {
             $risultato["status"] = "ERR";
@@ -128,6 +135,7 @@
         $capitoli_max = null;
         $volumi_max = null;
         $anno_uscita = null;
+        $formato = null;
         
         if ($info_manga["status"] === "OK") {
             $dato = $info_manga["dato"];
@@ -137,6 +145,7 @@
             $capitoli_max = $dato["capitoli_max"];
             $volumi_max = $dato["volumi_max"]; 
             $anno_uscita = $dato["anno_uscita"];
+            $formato = $dato["formato"];
         }
         
         // Se il titolo è stato passato manualmente, lo utilizziamo solo se non abbiamo recuperato niente da Anilist
@@ -284,13 +293,12 @@
         if ($row = $result->fetch_assoc()) {
             $attivita_id = $row["id"];
             
-            // Correzione: aggiunta data_ora=NOW() per aggiornare il timestamp, volumi_letti e anno_uscita
             $stmt_update = $conn->prepare("UPDATE attivita_manga 
                 SET titolo = ?, status = ?, punteggio = ?, capitoli_letti = ?, volumi_letti = ?, 
-                    data_inizio = ?, data_fine = ?, note = ?, rereading = ?, preferito = ?, anno = ?, data_ora = NOW() 
+                    data_inizio = ?, data_fine = ?, note = ?, rereading = ?, preferito = ?, anno = ?, formato = ?, data_ora = NOW() 
                 WHERE id = ?");
-            $stmt_update->bind_param("ssdiisssisii", $titolo, $status, $punteggio, $capitoli_letti, $volumi_letti, 
-                                   $start_date, $end_date, $note, $rereading, $preferito, $anno_uscita, $attivita_id);
+            $stmt_update->bind_param("ssdiisssisisi", $titolo, $status, $punteggio, $capitoli_letti, $volumi_letti, 
+                                   $start_date, $end_date, $note, $rereading, $preferito, $anno_uscita, $formato, $attivita_id);
             $stmt_update->execute();
 
             $ret["status"] = "OK";
@@ -298,22 +306,22 @@
         } else {
             $stmt_insert = $conn->prepare("INSERT INTO attivita_manga 
                 (utente_id, riferimento_api, titolo, status, punteggio, capitoli_letti, volumi_letti, 
-                 data_inizio, data_fine, note, rereading, preferito, anno, data_ora) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-            $stmt_insert->bind_param("iissdiisssiis", $utente_id, $manga_id, $titolo, $status, $punteggio, 
+                 data_inizio, data_fine, note, rereading, preferito, anno, formato, data_ora) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+            $stmt_insert->bind_param("iissdiisssiiss", $utente_id, $manga_id, $titolo, $status, $punteggio, 
                                     $capitoli_letti, $volumi_letti, $start_date, $end_date, $note, 
-                                    $rereading, $preferito, $anno_uscita);
+                                    $rereading, $preferito, $anno_uscita, $formato);
             $stmt_insert->execute();
 
             $ret["status"] = "OK";
             $ret["message"] = "Attività aggiunta correttamente!";
             
-            // Aggiungi informazioni aggiuntive per debug/feedback
             $ret["info"] = [
                 "titolo_trovato" => $titolo != "Titolo non disponibile",
                 "capitoli_max" => $capitoli_max,
                 "volumi_max" => $volumi_max,
-                "anno_uscita" => $anno_uscita
+                "anno_uscita" => $anno_uscita,
+                "formato" => $formato
             ];
         }
 

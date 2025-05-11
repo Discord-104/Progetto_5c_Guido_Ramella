@@ -1,0 +1,336 @@
+body {
+    background-color: #121212;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Effetto parallax per lo sfondo */
+.parallax-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    opacity: 0.2;
+    z-index: -1;
+}
+
+/* Stili per la navbar */
+.navbar {
+    background-color: rgba(18, 18, 18, 0.9);
+    border-bottom: 1px solid #333;
+    padding: 15px 0;
+}
+
+.brand {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, #FF6B6B, #6B66FF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 1px;
+}
+
+/* Stili per i container delle carte e tabelle */
+.search-card {
+    background-color: rgba(25, 25, 25, 0.95);
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+.card {
+    background-color: rgba(30, 30, 30, 0.95);
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+.card-title {
+    color: #fff;
+    font-weight: 600;
+}
+
+.card-text {
+    color: #ddd;
+}
+
+/* Stili per le tabelle */
+.table {
+    background-color: rgba(30, 30, 30, 0.8);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table-dark {
+    background-color: rgba(30, 30, 30, 0.95);
+    color: #fff;
+}
+
+.table thead th {
+    background-color: rgba(40, 40, 40, 0.95);
+    border-color: #444;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.table tbody td {
+    border-color: #333;
+    vertical-align: middle;
+}
+
+    .table-thumbnail {
+    width: 60px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+/* Stili per le tabs */
+.nav-tabs {
+    border-bottom: 1px solid #333;
+}
+
+.nav-tabs .nav-link {
+    color: #aaa;
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-right: 10px;
+    padding: 10px 15px;
+    transition: all 0.3s;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #fff;
+    border-bottom-color: #666;
+}
+
+.nav-tabs .nav-link.active {
+    color: #fff;
+    background-color: transparent;
+    border-bottom-color: #6B66FF;
+    font-weight: 600;
+}
+
+/* Stili per il menu del profilo */
+.profile-container {
+    position: relative;
+    cursor: pointer;
+}
+
+.profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #6B66FF;
+    transition: border-color 0.3s;
+}
+
+.profile-image:hover {
+    border-color: #FF6B6B;
+}
+
+.profile-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background-color: rgba(40, 40, 40, 0.95);
+    min-width: 200px;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.profile-menu a {
+    display: block;
+    padding: 10px 15px;
+    color: #fff;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.profile-menu a:hover {
+    background-color: rgba(60, 60, 60, 0.95);
+}
+
+.dropdown-divider {
+    border-top: 1px solid #444;
+    margin: 0.5rem 0;
+}
+
+/* Stili per i risultati della ricerca */
+.search-results {
+    max-height: 400px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #666 #222;
+}
+
+.search-results::-webkit-scrollbar {
+    width: 8px;
+}
+
+.search-results::-webkit-scrollbar-thumb {
+    background-color: #666;
+    border-radius: 4px;
+}
+
+.search-results::-webkit-scrollbar-track {
+    background-color: #222;
+}
+
+/* Dropdown menu */
+.dropdown-menu-dark {
+    background-color: rgba(40, 40, 40, 0.95);
+    border-color: #333;
+}
+
+.dropdown-item {
+    color: #ddd;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(60, 60, 60, 0.95);
+    color: #fff;
+}
+
+/* Footer */
+footer {
+    background-color: rgba(18, 18, 18, 0.9);
+    border-top: 1px solid #333;
+}
+
+footer a {
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Animazioni */
+.animated {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+.animated.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.pop-in {
+    animation-name: popIn;
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+}
+
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    70% {
+        transform: scale(1.05) translateY(-5px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Improved contrast for text */
+.text-muted {
+    color: #aaa !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .table-thumbnail {
+        width: 40px;
+        height: 60px;
+    }
+            
+    .nav-tabs .nav-link {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Stili per le immagini profilo nelle attività */
+.user-activity-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #333;
+    transition: all 0.2s;
+}
+
+.user-activity-avatar:hover {
+    border-color: #6B66FF;
+    transform: scale(1.1);
+}
+
+.user-activity-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.user-table-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-table-info span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+}
+
+/* Miglioramento per la visualizzazione nelle tabelle */
+#anime-table th:first-child,
+#manga-table th:first-child,
+#fumetti-table th:first-child,
+#giochi-table th:first-child {
+    min-width: 140px;
+}
+
+/* Miglioramento responsive per mobile */
+@media (max-width: 768px) {
+    .user-activity-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .user-activity-avatar {
+        margin-bottom: 5px;
+    }
+    
+    .user-table-info {
+        flex-direction: column;
+    }
+    
+    .user-table-info .user-activity-avatar {
+        margin-bottom: 5px;
+    }
+}
