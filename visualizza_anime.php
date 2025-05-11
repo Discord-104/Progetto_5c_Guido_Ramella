@@ -12,10 +12,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="CSS/stile_attivita.css">
     <title>Attività Anime</title>
+    <link rel="stylesheet" href="CSS/attivita_style.css">
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            // Verifica che l'editor esista
+            if (!document.getElementById('editor')) {
+                console.error("Editor non trovato nel DOM all'avvio della pagina!");
+                // Crea l'elemento editor se non esiste
+                createEditorIfNotExists();
+            }
+            
             caricaAttivita();
 
             // Ordina quando si cambia il valore nel select
@@ -23,6 +30,69 @@
                 caricaAttivita();
             });
         });
+        
+        // Funzione per creare l'editor se non esiste
+        function createEditorIfNotExists() {
+            if (!document.getElementById('editor')) {
+                console.log("Creazione elemento editor mancante");
+                const editorDiv = document.createElement('div');
+                editorDiv.id = 'editor';
+                editorDiv.className = 'editor';
+                editorDiv.style.display = 'none';
+                
+                editorDiv.innerHTML = `
+                    <h3>Salva Attività Anime</h3>
+
+                    <label for="status">Status:</label>
+                    <select id="status">
+                        <option value="Watching">Watching</option>
+                        <option value="Complete">Complete</option>
+                        <option value="Paused">Paused</option>
+                        <option value="Dropped">Dropped</option>
+                        <option value="Planning">Planning</option>
+                    </select>
+
+                    <label for="punteggio">Punteggio:</label>
+                    <input type="number" id="punteggio" step="0.1" min="0" max="10">
+
+                    <label for="episodi_visti">Episodi Visti:</label>
+                    <input type="number" id="episodi_visti" min="0">
+
+                    <label for="start_date">Data inizio:</label>
+                    <input type="date" id="start_date">
+
+                    <label for="end_date">Data fine:</label>
+                    <input type="date" id="end_date">
+
+                    <label for="note">Note:</label>
+                    <textarea id="note"></textarea>
+
+                    <label for="rewatch">Rewatch (quante volte):</label>
+                    <input type="number" id="rewatch" min="0">
+
+                    <div class="checkbox-container">
+                        <label for="preferito">Preferito:</label>
+                        <input type="checkbox" id="preferito">
+                    </div>
+
+                    <div class="buttons-container">
+                        <button onclick="salvaAttivita()">Salva</button>
+                    </div>
+                `;
+                
+                // Aggiungi l'editor al container
+                const container = document.querySelector('.container');
+                if (container) {
+                    container.appendChild(editorDiv);
+                } else {
+                    // Se non troviamo il container, aggiungiamolo al body come fallback
+                    document.body.appendChild(editorDiv);
+                }
+            }
+        }
+
+        // Variabile per tenere traccia dell'attività corrente in fase di modifica
+        let currentEditingItem = null;
 
         async function caricaAttivita() {
             let contenitore = document.getElementById("sezione_attivita");
@@ -50,9 +120,17 @@
                 attivitàPerStatus[status] = [];
             }
 
+            // Traccia gli ID già aggiunti per evitare duplicati (utilizzo di un array semplice)
+            let idsAggiunti = [];
+
             for (let item of attività) {
                 if ("episodi_visti" in item && ordineStatus.includes(item.status)) {
-                    attivitàPerStatus[item.status].push(item);
+                    // Verifica se l'attività è già stata aggiunta
+                    let itemId = item.riferimento_api;
+                    if (!idsAggiunti.includes(itemId)) {
+                        attivitàPerStatus[item.status].push(item);
+                        idsAggiunti.push(itemId);
+                    }
                 }
             }
 
@@ -79,6 +157,7 @@
                     for (let attivitàItem of attivitàPerStatus[status]) {
                         let riga = document.createElement("div");
                         riga.className = "attivita-item";
+                        riga.dataset.riferimentoApi = attivitàItem.riferimento_api;  // Salva riferimento_api nell'elemento
 
                         let username = attivitàItem["username"];
                         let titolo = attivitàItem["titolo"];
@@ -114,75 +193,165 @@
                     }
                 }
             }
+
+            // Se c'era un'attività in modifica, riapri l'editor con i dati aggiornati
+            if (currentEditingItem) {
+                let riferimento_api = currentEditingItem.riferimento_api;
+                let updatedData = await getUpdatedAnimeData(riferimento_api);
+                if (updatedData) {
+                    // Assicurati che l'editor esista
+                    createEditorIfNotExists();
+                    
+                    // Trova l'elemento DOM dell'attività aggiornata
+                    let items = document.querySelectorAll('.attivita-item');
+                    for (let item of items) {
+                        if (item.dataset.riferimentoApi === riferimento_api) {
+                            // Assicurati che l'editor esista
+                            let editor = document.getElementById('editor');
+                            if (!editor) {
+                                console.warn("Editor non trovato nel DOM anche dopo il tentativo di creazione");
+                                return;
+                            }
+                            
+                            // Aggiorna i dati correnti
+                            currentEditingItem = updatedData;
+                            // Visualizza l'editor nell'elemento corretto
+                            item.appendChild(editor);
+                            
+                            // Imposta i valori nell'editor solo dopo averlo spostato nel DOM
+                            setTimeout(() => {
+                                populateEditor(updatedData);
+                                editor.style.display = 'block';
+                            }, 10);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Funzione per popolare l'editor con i dati
+        function populateEditor(dati) {
+        // Funzione di utilità per impostare in sicurezza i valori
+        function setElementValue(id, value) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.value = value;
+            } else {
+                console.warn("Elemento con id '" + id + "' non trovato");
+            }
+        }
+    
+        // Funzione di utilità per impostare checkbox
+            function setElementChecked(id, checked) {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.checked = checked;
+                } else {
+                    console.warn("Elemento con id '" + id + "' non trovato");
+                }
+            }
+            
+            // Imposta status
+            if (dati.status != null) {
+                setElementValue('status', dati.status);
+            } else {
+                setElementValue('status', "Planning");
+            }
+
+            // Imposta punteggio
+            if (dati.punteggio != null) {
+                setElementValue('punteggio', dati.punteggio);
+            } else {
+                setElementValue('punteggio', "");
+            }
+
+            // Imposta episodi visti
+            if (dati.episodi_visti != null) {
+                setElementValue('episodi_visti', dati.episodi_visti);
+            } else {
+                setElementValue('episodi_visti', "");
+            }
+
+            // Imposta data inizio
+            if (dati.data_inizio != null) {
+                setElementValue('start_date', dati.data_inizio);
+            } else {
+                setElementValue('start_date', "");
+            }
+
+            // Imposta data fine
+            if (dati.data_fine != null) {
+                setElementValue('end_date', dati.data_fine);
+            } else {
+                setElementValue('end_date', "");
+            }
+
+            // Imposta note
+            if (dati.note != null) {
+                setElementValue('note', dati.note);
+            } else {
+                setElementValue('note', "");
+            }
+
+            // Imposta rewatch
+            if (dati.rewatch != null) {
+                setElementValue('rewatch', dati.rewatch);
+            } else {
+                setElementValue('rewatch', "0");
+            }
+
+            // Imposta preferito
+            if (dati.preferito == 1) {
+                setElementChecked('preferito', true);
+            } else {
+                setElementChecked('preferito', false);
+            }
+
+            // Imposta riferimento API nel contenitore
+            const contenuto = document.querySelector('#contenuto');
+            if (contenuto) {
+                contenuto.dataset.riferimentoApi = dati.riferimento_api;
+            }
+
+            // Imposta titolo nell'editor
+            const editorTitle = document.querySelector('#editor h3');
+            if (editorTitle) {
+                editorTitle.textContent = "Modifica attività per: " + dati.titolo;
+            }
         }
 
         // Funzione per il pannello di editor
         function toggleEditor(dati) {
+            // Assicurati che l'editor esista
+            createEditorIfNotExists();
+            
             let editor = document.getElementById('editor');
-
-            if (dati != undefined) {
-                // Popola i campi
-                if (dati.status != null) {
-                    document.getElementById('status').value = dati.status;
-                } else {
-                    document.getElementById('status').value = "Planning";
-                }
-
-                if (dati.punteggio != null) {
-                    document.getElementById('punteggio').value = dati.punteggio;
-                } else {
-                    document.getElementById('punteggio').value = "";
-                }
-
-                if (dati.episodi_visti != null) {
-                    document.getElementById('episodi_visti').value = dati.episodi_visti;
-                } else {
-                    document.getElementById('episodi_visti').value = "";
-                }
-
-                if (dati.data_inizio != null) {
-                    document.getElementById('start_date').value = dati.data_inizio;
-                } else {
-                    document.getElementById('start_date').value = "";
-                }
-
-                if (dati.data_fine != null) {
-                    document.getElementById('end_date').value = dati.data_fine;
-                } else {
-                    document.getElementById('end_date').value = "";
-                }
-
-                if (dati.note != null) {
-                    document.getElementById('note').value = dati.note;
-                } else {
-                    document.getElementById('note').value = "";
-                }
-
-                if (dati.rewatch != null) {
-                    document.getElementById('rewatch').value = dati.rewatch;
-                } else {
-                    document.getElementById('rewatch').value = "0";
-                }
-
-                if (dati.preferito == 1) {
-                    document.getElementById('preferito').checked = true;
-                } else {
-                    document.getElementById('preferito').checked = false;
-                }
-
-                if (dati.riferimento_api != null) {
-                    document.querySelector('#contenuto').dataset.riferimentoApi = dati.riferimento_api;
-                }
-
-                if (dati.titolo != null) {
-                    document.querySelector('#editor h3').textContent = "Modifica attività per: " + dati.titolo;
-                }
-
-                // Sposta l'editor accanto all’attività
-                let attivitàItem = event.target.parentElement;
-                attivitàItem.appendChild(editor);
-                editor.style.display = 'block';
+            
+            // Verifica se l'editor esiste dopo averlo creato
+            if (!editor) {
+                console.error("Impossibile trovare o creare l'editor nel DOM");
+                return;
             }
+
+            if (dati === undefined) {
+                editor.style.display = 'none';
+                currentEditingItem = null;
+                return;
+            }
+
+            // Memorizza l'attività corrente
+            currentEditingItem = dati;
+            
+            // Sposta l'editor accanto all'attività
+            let attivitàItem = event.target.parentElement;
+            attivitàItem.appendChild(editor);
+            
+            // Popola l'editor con i dati dopo averlo spostato nel DOM
+            setTimeout(() => {
+                populateEditor(dati);
+                editor.style.display = 'block';
+            }, 10);
         }
 
 
@@ -218,26 +387,47 @@
 
             if (data.status == "OK") {
                 alert("Attività salvata con successo!");
-                toggleEditor();
-                caricaAttivita(); // Ricarica le attività dopo il salvataggio
+                
+                // Ricarica le attività dopo il salvataggio ma mantieni aperto l'editor
+                await caricaAttivita(); 
+                
+                // L'editor verrà mantenuto aperto nella funzione caricaAttivita grazie alla variabile currentEditingItem
             } else {
                 alert("Errore nel salvataggio dell'attività: " + data.message);
             }
         }
 
-        // Carica automaticamente le attività e i dettagli dell'anime al caricamento della pagina
-        document.addEventListener("DOMContentLoaded", function() {
-            caricaAttivita();
-        });
+        // Funzione per ottenere i dati aggiornati di un anime specifico
+        async function getUpdatedAnimeData(riferimento_api) {
+            let response = await fetch("ajax/carica_attivita.php");
+            if (!response.ok) {
+                console.error("Errore nella fetch delle attività");
+                return null;
+            }
+
+            let txt = await response.text();
+            let datiRicevuti = JSON.parse(txt);
+
+            if (datiRicevuti["status"] === "ERR") {
+                console.error(datiRicevuti["msg"]);
+                return null;
+            }
+
+            let attività = datiRicevuti["data"];
+            
+            // Trova l'attività con lo stesso riferimento_api
+            for (let item of attività) {
+                if (item.riferimento_api === riferimento_api) {
+                    return item;
+                }
+            }
+            return null;
+        }
     </script>
 </head>
 <body>
     <div class="container">
-        <div id="contenuto">
-            <p>Caricamento in corso...</p>
-        </div>
-
-        <!-- Aggiunta della sezione attività mancante -->
+        <!-- Sezione attività -->
         <div id="sezione_attivita">
             <!-- Qui verranno caricate le attività -->
         </div>
@@ -251,6 +441,7 @@
             </select>
         </div>
 
+        <!-- Pannello editor -->
         <div id="editor" class="editor" style="display: none;">
             <h3>Salva Attività Anime</h3>
 
@@ -258,7 +449,9 @@
             <select id="status">
                 <option value="Watching">Watching</option>
                 <option value="Complete">Complete</option>
-                <option value="Planning" selected>Planning</option>
+                <option value="Paused">Paused</option>
+                <option value="Dropped">Dropped</option>
+                <option value="Planning">Planning</option>
             </select>
 
             <label for="punteggio">Punteggio:</label>
@@ -279,10 +472,14 @@
             <label for="rewatch">Rewatch (quante volte):</label>
             <input type="number" id="rewatch" min="0">
 
-            <label for="preferito">Preferito:</label>
-            <input type="checkbox" id="preferito">
+            <div class="checkbox-container">
+                <label for="preferito">Preferito:</label>
+                <input type="checkbox" id="preferito">
+            </div>
 
-            <button onclick="salvaAttivita()">Salva</button>
+            <div class="buttons-container">
+                <button onclick="salvaAttivita()">Salva</button>
+            </div>
         </div>
     </div>
 </body>
