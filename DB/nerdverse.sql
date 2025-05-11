@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Mag 06, 2025 alle 22:01
+-- Creato il: Mag 11, 2025 alle 22:24
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -51,14 +51,17 @@ CREATE TABLE `attivita_anime` (
 
 INSERT INTO `attivita_anime` (`id`, `utente_id`, `titolo`, `riferimento_api`, `status`, `punteggio`, `episodi_visti`, `data_inizio`, `data_fine`, `note`, `rewatch`, `preferito`, `data_ora`, `anno_uscita`, `formato`) VALUES
 (1, 1, 'Sousou no Frieren', 154587, 'Planning', 0.0, 0, NULL, NULL, '', 0, 0, '2025-04-30 08:19:56', '2023', 'TV'),
-(2, 1, 'Ore dake Level Up na Ken', 151807, 'Complete', 10.0, 12, '2024-07-20', '2024-07-20', 'BEST ANIME ALL THE SERIES', 0, 0, '2025-04-26 21:04:23', '2024', 'TV'),
+(2, 1, 'Ore dake Level Up na Ken', 151807, 'Complete', 10.0, 12, '2024-07-20', '2024-07-20', 'BEST ANIME ALL THE SERIES', 0, 1, '2025-04-26 21:04:23', '2024', 'TV'),
 (3, 1, 'Ore dake Level Up na Ken: ReAwakening', 184694, 'Planning', 0.0, 0, NULL, NULL, '', 0, 0, '2025-04-26 14:05:02', '2024', 'Movie'),
 (4, 1, 'Dragon Ball', 223, 'Planning', 0.0, 0, NULL, NULL, '', 0, 0, '2025-04-29 15:06:10', '1986', 'TV'),
 (5, 1, 'Dragon Ball Z', 813, 'Planning', 0.0, 0, NULL, NULL, '', 0, 0, '2025-04-29 17:19:54', '1989', 'TV'),
 (6, 1, 'Ore dake Level Up na Ken: Season 2 - Arise from the Shadow', 176496, 'Watching', 10.0, 4, '2025-04-30', NULL, '', 0, 0, '2025-04-30 09:29:50', '2025', 'TV'),
-(7, 1, 'BLEACH', 269, 'Watching', 0.0, 1, '2025-04-30', NULL, '', 0, 0, '2025-04-30 08:23:15', '2004', 'TV'),
-(8, 1, 'Baki', 97888, 'Complete', 0.0, 26, '2025-05-01', '2025-05-01', '', 0, 0, '2025-05-01 14:08:15', '2018', 'ONA'),
-(9, 1, 'Yu☆Gi☆Oh! Duel Monsters', 481, 'Planning', 0.0, 0, NULL, NULL, '', 0, 0, '2025-05-05 16:34:15', '2000', 'TV');
+(7, 1, 'BLEACH', 269, 'Watching', 0.0, 3, '2025-04-30', NULL, '', 0, 0, '2025-05-09 15:48:03', '2004', 'TV'),
+(8, 1, 'Baki', 97888, 'Complete', 0.0, 26, '2025-05-01', '2025-05-01', '', 0, 1, '2025-05-01 14:08:15', '2018', 'ONA'),
+(9, 1, 'Yu☆Gi☆Oh! Duel Monsters', 481, 'Planning', 0.0, 0, NULL, NULL, '', 0, 0, '2025-05-05 16:34:15', '2000', 'TV'),
+(10, 1, 'Chainsaw Man', 127230, 'Planning', 0.0, 0, NULL, NULL, '', 0, 0, '2025-05-09 11:34:15', '2022', 'TV'),
+(11, 1, 'Shin Seiki Evangelion', 30, 'Planning', 0.0, 0, NULL, NULL, '', 0, 0, '2025-05-09 11:44:46', '1995', 'TV'),
+(12, 6, 'Ore dake Level Up na Ken', 151807, 'Watching', 0.0, 7, '2025-05-11', NULL, '', 0, 0, '2025-05-11 19:04:03', '2024', 'TV');
 
 -- --------------------------------------------------------
 
@@ -90,10 +93,11 @@ CREATE TABLE `attivita_fumetto` (
 --
 
 INSERT INTO `attivita_fumetto` (`id`, `utente_id`, `titolo`, `riferimento_api`, `status`, `punteggio`, `numero_letti`, `data_inizio`, `data_fine`, `note`, `preferito`, `nome_volume`, `anno_uscita`, `data_ora`, `numero_fumetto`, `riletture`) VALUES
-(1, 1, 'Titolo non disponibile', 1032599, 'Reading', 8.0, 7, '2025-05-01', NULL, 'Are you sure?', 0, 'Invincible', '2023-08-01', '2025-05-01 13:08:40', '12', 0),
+(1, 1, 'Titolo non disponibile', 1032599, 'Reading', 8.0, 18, '2025-05-01', NULL, 'Are you sure?', 1, 'Invincible', '2023-08-01', '2025-05-09 15:59:37', '12', 0),
 (2, 1, 'Titolo non disponibile', 828444, 'Complete', 10.0, 25, '2025-05-02', '2025-05-02', '', 0, 'Invincible', '2019-11-01', '2025-05-02 10:20:41', '1', 3),
 (3, 1, 'Titolo non disponibile', 830821, 'Complete', 0.0, 27, '2025-05-02', '2025-05-02', '', 0, 'Invincible', '2020-04-01', '2025-05-02 10:27:23', '2', 0),
-(4, 1, 'Titolo non disponibile', 845351, 'Planning', 0.0, 0, NULL, NULL, '', 0, 'Invincible', '2020-08-01', '2025-05-05 17:27:05', '3', 0);
+(4, 1, 'Titolo non disponibile', 845351, 'Planning', 0.0, 0, NULL, NULL, '', 0, 'Invincible', '2020-08-01', '2025-05-05 17:27:05', '3', 0),
+(5, 6, 'Titolo non disponibile', 1032599, 'Reading', 0.0, 1, '2025-05-11', NULL, '', 0, 'Invincible', '2023-08-01', '2025-05-11 19:48:19', '12', 0);
 
 -- --------------------------------------------------------
 
@@ -131,8 +135,10 @@ INSERT INTO `attivita_manga` (`id`, `utente_id`, `titolo`, `riferimento_api`, `s
 (4, 1, 'Hanma Baki', 37760, 'Planning', 0.0, 0, 0, NULL, NULL, '', 0, 0, '2025-04-29 15:49:13', 2005, 'MANGA'),
 (5, 1, 'Sousou no Frieren', 118586, 'Reading', 0.0, 1, 0, '2025-04-30', NULL, '', 0, 0, '2025-04-30 08:02:12', 2020, 'MANGA'),
 (6, 1, 'Jigokuraku', 100994, 'Reading', 0.0, 21, 0, '2025-05-01', NULL, '', 0, 0, '2025-05-01 13:59:25', 2018, 'MANGA'),
-(7, 1, 'Jujutsu Kaisen', 101517, 'Reading', 0.0, 34, 4, '2025-05-01', NULL, '', 0, 0, '2025-05-01 18:26:47', 2018, 'MANGA'),
-(8, 1, 'One Punch-Man', 74347, 'Planning', 0.0, 0, 0, NULL, NULL, '', 0, 0, '2025-05-05 17:13:31', 2012, NULL);
+(7, 1, 'Jujutsu Kaisen', 101517, 'Complete', 0.0, 34, 4, '2025-05-01', '2025-05-09', '', 0, 1, '2025-05-09 13:16:21', 2018, 'MANGA'),
+(8, 1, 'One Punch-Man', 74347, 'Planning', 0.0, 0, 0, NULL, NULL, '', 0, 0, '2025-05-05 17:13:31', 2012, 'MANGA'),
+(9, 6, 'Chainsaw Man', 105778, 'Reading', 0.0, 1, 0, '2025-05-11', NULL, '', 0, 0, '2025-05-11 19:31:48', 2018, 'MANGA'),
+(10, 6, 'Dandadan', 132029, 'Planning', 0.0, 0, 0, NULL, NULL, 'Balls', 0, 0, '2025-05-11 19:34:06', 2021, 'MANGA');
 
 -- --------------------------------------------------------
 
@@ -162,10 +168,11 @@ CREATE TABLE `attivita_videogioco` (
 --
 
 INSERT INTO `attivita_videogioco` (`id`, `utente_id`, `guid`, `titolo`, `data_uscita`, `status`, `punteggio`, `ore_giocate`, `start_date`, `end_date`, `note`, `rigiocato`, `preferito`, `data_ora`) VALUES
-(1, 1, '3030-80640', 'Final Fantasy XVI', '2023-06-22', 'Complete', 10, 88, '2025-05-04', '2025-05-04', '', 0, 0, '2025-05-04 17:17:55'),
+(1, 1, '3030-80640', 'Final Fantasy XVI', '2023-06-22', 'Complete', 10, 88, '2025-05-04', '2025-05-04', '', 0, 1, '2025-05-09 21:45:04'),
 (2, 1, '3030-84787', 'Final Fantasy VII Rebirth', '2024-02-29', 'Complete', 10, 178, '2024-11-30', '2025-04-18', '', 0, 1, '2025-05-04 17:32:00'),
 (3, 1, '3030-21006', 'Final Fantasy XV', '2016-11-29', 'Planning', 0, 0, NULL, NULL, '', 0, 0, '2025-05-05 19:30:22'),
-(4, 1, '3030-11237', 'Final Fantasy X', '2001-07-19', 'Planning', 0, 0, NULL, NULL, '', 0, 0, '2025-05-05 19:52:14');
+(4, 1, '3030-11237', 'Final Fantasy X', '2001-07-19', 'Planning', 0, 0, NULL, NULL, '', 0, 0, '2025-05-05 19:52:14'),
+(5, 6, '3030-1629', 'Call of Duty', '2003-10-29', 'Playing', 0, 13, '2025-05-11', NULL, '', 0, 0, '2025-05-11 21:55:56');
 
 -- --------------------------------------------------------
 
@@ -192,11 +199,12 @@ CREATE TABLE `utenti` (
 --
 
 INSERT INTO `utenti` (`id`, `username`, `first_name`, `last_name`, `phone`, `email`, `birthdate`, `profile_image`, `password`, `tipo`, `bio`) VALUES
-(1, 'Mark', 'Mario', 'Rossi', '3331234567', 'mario.rossi@example.com', '1990-05-22', 'default_profiles/omni_mark.png', '5bb866eeb99bad75a54ab865b84c9159', 'utente', NULL),
+(1, 'Mark', 'Mario', 'Verdi', '3331234567', 'mario.rossi@example.com', '1990-05-22', 'default_profiles/majora_mask.png', '5bb866eeb99bad75a54ab865b84c9159', 'utente', ''),
 (2, 'topolino', 'Luca', 'Abete', '23243554222', 'luca.abete@gmail.com', '1999-12-01', 'default_profiles/sinister_mark.png', '17a3b995fe38081ca0f9a87796e97a50', 'utente', NULL),
 (3, 'PixelNinja', 'Luca', 'Ambrosio', '3456789012', 'luca.ambrosio@gmail.com', '2009-12-29', 'default_profiles/sung_jin_woo.png', '8eb920cc8359b29063d093a9599097be', 'utente', NULL),
 (4, '8BitHero', 'Gianluca', 'Belvedere', '1122342112', 'gianluca.belvedere@gmail.com', '2000-01-22', 'default_profiles/king.png', '851d3521a0ad2dbd1e13a93cb6981c73', 'utente', NULL),
-(5, 'Diddy', 'Sean', 'Combos', '1232341234', 'diddy.prison@gmail.com', '1969-11-04', 'uploads/2641cfc5d36960564ea52f1f58ab3898.jpg', '98142de5eca84a3044d69ca8478f1682', 'utente', NULL);
+(5, 'Diddy', 'Sean', 'Combos', '1232341234', 'diddy.prison@gmail.com', '1969-11-04', 'uploads/2641cfc5d36960564ea52f1f58ab3898.jpg', '98142de5eca84a3044d69ca8478f1682', 'utente', NULL),
+(6, 'Rarder44', 'Luca', 'Pozzi', '4561234567', 'luca.pozzi@gmail.com', '1901-11-11', 'default_profiles/tobi.png', '24fa34bc3624f49bc686589e87660675', 'utente', 'Mi chiamo Pozzi Luca, ma da qualche era cosmica vengo semplicemente chiamato… Il Sensei. Esisto da prima del tempo e dello spazio: quando il Big Bang ha fatto ‘boom’, io stavo già discutendo della trama di Evangelion con un’entità interdimensionale. Il mio sapere su anime, manga, fumetti e videogiochi sfida le leggi della fisica e della pazienza umana: ho finito One Piece nel 2002 (non chiedetemi come) e ho completato il Pokédex… su carta.\n\nNon solo sono riuscito a spiegare l\'infinità di universi paralleli che esistono nei manga, ma ho anche trovato il modo di navigarli tutti senza una bussola. Ho abbattuto più boss di quelli che ci sono in un Final Fantasy, e sono stato il primo a completare il Ciclo di Dune senza mai perdermi, nemmeno una volta. Ho partecipato al primo torneo mondiale di Street Fighter II (non esisteva ancora, ma ho vinto lo stesso), ho discusso con Goku di tecniche di respirazione e ho corretto l\'autore di Death Note su un paio di passaggi confusi.\n\nMa le mie imprese non si fermano qui: sono riuscito a fermare un’invasione aliena in Mass Effect con una sola battuta (e senza neanche alzarmi dal divano), ho insegnato a Homer Simpson come evitare le crisi di panico durante una maratona di The Simpsons, e ho scritto un saggio che ha cambiato il destino delle dimensioni parallele: La relatività di Dragon Ball e il multiverso nella filosofia orientale.\n\nPer me i fumetti non sono solo carta e inchiostro: sono universi paralleli rilegati in spillato. Come diceva un certo zio Ben: “Da un grande potere derivano grandi responsabilità”, e da una grande collezione di fumetti derivano… scaffali rinforzati.\n\nNon temete, però! La mia grande saggezza non mi ha mai fatto perdere il contatto con la realtà, o meglio, con quella che voi chiamate “realtà”. Mi piace definirmi un professore di superpoteri e un ninja dell’istruzione, capace di fare magie con un pennarello e una lavagna.\n\nPS: Il sito che state visitando è chiaramente opera di Guido, il mio alunno preferito. Lo capisco dallo stile, dall’anima, e dalla quantità di dedizione infusa in ogni riga di codice. È un progetto ambizioso, originale, fatto con passione… insomma, sicuramente prenderà la sufficienza. Forse.');
 
 --
 -- Indici per le tabelle scaricate
@@ -245,31 +253,31 @@ ALTER TABLE `utenti`
 -- AUTO_INCREMENT per la tabella `attivita_anime`
 --
 ALTER TABLE `attivita_anime`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT per la tabella `attivita_fumetto`
 --
 ALTER TABLE `attivita_fumetto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT per la tabella `attivita_manga`
 --
 ALTER TABLE `attivita_manga`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT per la tabella `attivita_videogioco`
 --
 ALTER TABLE `attivita_videogioco`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT per la tabella `utenti`
 --
 ALTER TABLE `utenti`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Limiti per le tabelle scaricate

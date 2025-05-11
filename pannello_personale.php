@@ -13,88 +13,110 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pannello Personale</title>
-    <link rel="stylesheet" href="CSS/pannello_personale.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="CSS/pannello.css">
 </head>
 <body>
+    <!-- Sfondo parallax -->
+    <div class="parallax-bg"></div>
 
-    <h1>Il Mio Pannello</h1>
-
-    <!-- Menu a tendina spostato in alto a destra -->
-    <div class="menu" onclick="toggleMenu()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="5" r="1"></circle>
-            <circle cx="12" cy="12" r="1"></circle>
-            <circle cx="12" cy="19" r="1"></circle>
-        </svg>
-        <div class="dropdown-content">
-            <a href="modifica_profilo.php">Modifica Profilo</a>
-        </div>
-    </div>
-
-    <table id="profilo">
-        <tr>
-            <td rowspan="2">
-                <img id="immagineProfilo" src="" alt="Profilo">
-            </td>
-            <td>
-                <div id="datiPersonali">
-                    <h2 id="nomeUtente"></h2>
-                    <p id="infoBio"></p>
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-10">
+                <h1 class="brand animated fade-in">Il Mio Pannello</h1>
+            </div>
+            <div class="col-md-2 text-end">
+                <!-- Menu dropdown Bootstrap -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-light border-0" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5f85db" stroke-width="2">
+                            <circle cx="12" cy="5" r="1"></circle>
+                            <circle cx="12" cy="12" r="1"></circle>
+                            <circle cx="12" cy="19" r="1"></circle>
+                        </svg>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                        <li><a class="dropdown-item" href="modifica_profilo.php">Modifica Profilo</a></li>
+                    </ul>
                 </div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <p><strong>Statistiche attività personali:</strong></p>
-                <div id="statistiche"></div>
-            </td>
-        </tr>
-    </table>
-
-    <table id="preferiti">
-        <tr>
-            <td colspan="2">
-                <h2>I Miei Preferiti</h2>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <p><strong>Anime:</strong></p>
-                <ul id="preferitiAnime"></ul>
-            </td>
-            <td>
-                <p><strong>Manga:</strong></p>
-                <ul id="preferitiManga"></ul>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <p><strong>Fumetti:</strong></p>
-                <ul id="preferitiFumetti"></ul>
-            </td>
-            <td>
-                <p><strong>Videogiochi:</strong></p>
-                <ul id="preferitiVideogiochi"></ul>
-            </td>
-        </tr>
-    </table>
-
-    <!-- Grafici -->
-    <div class="grafici-container">
-        <!-- Grafico a torta per le statistiche generali -->
-        <div id="grafico">
-            <h2>Grafico delle Attività</h2>
-            <canvas id="graficoAttivita"></canvas>
+            </div>
         </div>
-        
-        <!-- Grafico temporale per l'andamento delle attività -->
-        <div id="graficoTimeline">
-            <h2>Andamento Temporale</h2>
-            <canvas id="graficoAndamento"></canvas>
+
+        <!-- Profilo -->
+        <div class="row animated slide-in" style="animation-delay: 0.2s;">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 text-center mb-3 mb-md-0">
+                                <img id="immagineProfilo" class="profile-img" src="" alt="Profilo">
+                            </div>
+                            <div class="col-md-9">
+                                <div id="datiPersonali">
+                                    <h2 id="nomeUtente" class="mb-2"></h2>
+                                    <p id="infoBio"></p>
+                                </div>
+                                <div class="mt-3">
+                                    <p><strong>Statistiche attività personali:</strong></p>
+                                    <div id="statistiche" class="mt-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preferiti -->
+        <div class="row mt-4 animated slide-in" style="animation-delay: 0.4s;">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="text-center mb-4">I Miei Preferiti</h2>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <h5 class="brand">Anime:</h5>
+                                <ul id="preferitiAnime" class="favorites-list"></ul>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <h5 class="brand">Manga:</h5>
+                                <ul id="preferitiManga" class="favorites-list"></ul>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <h5 class="brand">Fumetti:</h5>
+                                <ul id="preferitiFumetti" class="favorites-list"></ul>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <h5 class="brand">Videogiochi:</h5>
+                                <ul id="preferitiVideogiochi" class="favorites-list"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grafici -->
+        <div class="row mt-4 animated slide-in" style="animation-delay: 0.6s;">
+            <div class="col-lg-6 mb-4">
+                <div class="chart-container">
+                    <h2 class="brand text-center mb-3">Grafico delle Attività</h2>
+                    <canvas id="graficoAttivita"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="chart-container">
+                    <h2 class="brand text-center mb-3">Andamento Temporale</h2>
+                    <canvas id="graficoAndamento"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         async function caricaProfilo() {
             let url = "ajax/carica_dati_personali.php";
@@ -239,6 +261,9 @@
                     plugins: {
                         legend: {
                             position: 'top',
+                            labels: {
+                                color: '#e0e0e0'
+                            }
                         },
                         tooltip: {
                             callbacks: {
@@ -255,7 +280,7 @@
         // Funzione per caricare il grafico temporale
         function caricaGraficoTimeline(timelineData) {
             if (!timelineData || timelineData.length === 0) {
-                document.getElementById('graficoTimeline').innerHTML = '<h2>Andamento Temporale</h2><p>Nessun dato disponibile per il grafico temporale</p>';
+                document.getElementById('graficoAndamento').innerHTML = '<h2>Andamento Temporale</h2><p>Nessun dato disponibile per il grafico temporale</p>';
                 return;
             }
 
@@ -359,36 +384,35 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Numero di attività'
+                                text: 'Numero di attività',
+                                color: '#e0e0e0'
+                            },
+                            ticks: {
+                                color: '#e0e0e0'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#e0e0e0'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
                             }
                         }
                     },
                     plugins: {
                         legend: {
                             position: 'top',
+                            labels: {
+                                color: '#e0e0e0'
+                            }
                         }
                     }
                 }
             });
-        }
-
-        // Funzione per alternare la visibilità del menu
-        function toggleMenu() {
-            let menu = document.querySelector('.dropdown-content');
-            menu.classList.toggle('show');
-        }
-
-        // Chiudi il menu quando si fa clic altrove
-        window.onclick = function(event) {
-            if (!event.target.matches('.menu') && !event.target.closest('.menu')) {
-                let dropdowns = document.getElementsByClassName("dropdown-content");
-                for (let i = 0; i < dropdowns.length; i++) {
-                    let openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
-                }
-            }
         }
 
         document.addEventListener("DOMContentLoaded", caricaProfilo);

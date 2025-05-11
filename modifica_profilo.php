@@ -206,16 +206,16 @@ if (isset($_POST['modifica_profilo'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifica Profilo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="CSS/pannello_modifica.css">
+    <link rel="stylesheet" href="CSS/modifica.css">
     <script src="JS/registrazione.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-    <div class="container py-5">
+    <div class="container py-5 animated fade-in">
         <div class="row justify-content-center">
             <div class="col-md-10">
                 <div class="card shadow">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header">
                         <h3 class="mb-0">Modifica Profilo</h3>
                     </div>
                     <div class="card-body">
@@ -232,7 +232,7 @@ if (isset($_POST['modifica_profilo'])) {
                         <?php } ?>
                         
                         <form action="" method="post" enctype="multipart/form-data" id="profileForm" onsubmit="return validateForm(event)">
-                            <div class="row mb-3">
+                            <div class="row mb-4">
                                 <div class="col-md-6">
                                     <label for="username" class="form-label">Username * <small class="text-muted">(minimo 3 caratteri)</small></label>
                                     <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($utente['username']); ?>" required>
@@ -248,16 +248,14 @@ if (isset($_POST['modifica_profilo'])) {
                             <div class="mb-4">
                                 <label class="form-label">Immagine profilo</label>
                                 <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <div class="text-center">
-                                            <img id="preview-image" src="<?php echo htmlspecialchars($utente['profile_image']); ?>" alt="Immagine profilo" class="img-thumbnail rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
-                                        </div>
+                                    <div class="col-md-4 mb-3 text-center">
+                                        <img id="preview-image" src="<?php echo htmlspecialchars($utente['profile_image']); ?>" alt="Immagine profilo" class="img-fluid">
                                     </div>
                                     <div class="col-md-8">
                                         <div class="mb-3">
                                             <label for="profile_image" class="form-label">Carica nuova immagine</label>
                                             <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/*">
-                                            <small class="form-text text-muted">Formati supportati: JPG, JPEG, PNG, GIF. Max 2MB.</small>
+                                            <small class="form-text">Formati supportati: JPG, JPEG, PNG, GIF. Max 2MB.</small>
                                         </div>
                                         
                                         <div class="mb-3">
@@ -294,7 +292,7 @@ if (isset($_POST['modifica_profilo'])) {
                                 </div>
                             </div>
                             
-                            <div class="row mb-3">
+                            <div class="row mb-4">
                                 <div class="col-md-6">
                                     <label for="first_name" class="form-label">Nome *</label>
                                     <input type="text" class="form-control" id="first_name" name="first_name" value="<?php echo htmlspecialchars($utente['first_name']); ?>" required>
@@ -307,7 +305,7 @@ if (isset($_POST['modifica_profilo'])) {
                                 </div>
                             </div>
                             
-                            <div class="row mb-3">
+                            <div class="row mb-4">
                                 <div class="col-md-6">
                                     <label for="phone" class="form-label">Telefono *</label>
                                     <input type="tel" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($utente['phone']); ?>" required>
@@ -320,17 +318,17 @@ if (isset($_POST['modifica_profilo'])) {
                                 </div>
                             </div>
                             
-                            <div class="mb-3">
+                            <div class="mb-4">
                                 <label for="bio" class="form-label">Bio (opzionale)</label>
                                 <textarea class="form-control" id="bio" name="bio" rows="4"><?php echo htmlspecialchars($utente['bio'] ?? ''); ?></textarea>
-                                <small class="form-text text-muted">Raccontaci di te, delle tue passioni e dei tuoi interessi nerd!</small>
+                                <small class="form-text">Raccontaci di te, delle tue passioni e dei tuoi interessi nerd!</small>
                             </div>
                             
-                            <hr>
+                            <hr class="my-4">
                             <h4 class="mb-3">Modifica Password</h4>
                             <p class="text-muted small">Compila questi campi solo se desideri cambiare la tua password</p>
                             
-                            <div class="mb-3">
+                            <div class="mb-4">
                                 <label for="current_password" class="form-label">Password attuale</label>
                                 <input type="password" class="form-control" id="current_password" name="current_password">
                             </div>
@@ -357,6 +355,6 @@ if (isset($_POST['modifica_profilo'])) {
                 </div>
             </div>
         </div>
-    </div>
+    </div>  
 </body>
 </html>
