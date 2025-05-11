@@ -1,4 +1,4 @@
-# 🎮 L'angolo nerd
+# 🎮 NerdVerse
 
 **L’angolo nerd** è un sito web pensato per gli appassionati di **anime**, **manga**, **fumetti** e **videogiochi**, con l’obiettivo di creare una piattaforma social in stile **AniList**, dove ogni utente può tenere traccia delle proprie passioni nerd.
 
