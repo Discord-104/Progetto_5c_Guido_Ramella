@@ -26,11 +26,11 @@
     <!-- Font Awesome per le icone -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <link rel="stylesheet" href="css/manga.css">    
+    <link rel="stylesheet" href="CSS/manga.css">    
 
 <script>
     async function caricaDettagliManga(id) {
-        let url = "ajax/getMangaByID.php?id=" + id;
+        let url = "ajax/getMangabyID.php?id=" + id;
 
         let response = await fetch(url);
         if (!response.ok) {

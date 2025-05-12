@@ -375,7 +375,8 @@
                 preferito = 1;
             }
 
-            let riferimento_api = document.querySelector('#contenuto').dataset.riferimentoApi;
+            // Usa currentEditingItem invece di cercare l'elemento 'contenuto'
+            let riferimento_api = currentEditingItem.riferimento_api;
 
             let url = "ajax/attivita_fumetto.php?";
             url += "&fumetto_id=" + riferimento_api;

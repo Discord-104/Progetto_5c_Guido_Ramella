@@ -366,7 +366,7 @@
                 preferito = 1;
             }
 
-            let guid = document.querySelector('#contenuto').dataset.riferimentoApi;
+            let guid = currentEditingItem.guid;
 
             let url = "ajax/attivita_videogame.php?";
             url += "videogioco_guid=" + guid;

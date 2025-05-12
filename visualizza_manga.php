@@ -439,7 +439,6 @@
 </head>
 <body>
     <div class="container">
-        <div id="contenuto"><p>Caricamento in corso...</p></div>
 
         <!-- Sezione attività -->
         <div id="sezione_attivita">
