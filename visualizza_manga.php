@@ -380,7 +380,7 @@
                 preferito = 1;
             }
 
-            let riferimento_api = document.querySelector('#contenuto').dataset.riferimentoApi;
+            let riferimento_api = currentEditingItem.riferimento_api;
 
             let url = "ajax/attivita_manga.php?";
             url += "&manga_id=" + riferimento_api;
